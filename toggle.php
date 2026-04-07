@@ -26,6 +26,8 @@ require_once(__DIR__ . '/../../config.php');
 
 $cmid = required_param('cmid', PARAM_INT);
 
+$PAGE->set_url(new moodle_url('/local/writerview/toggle.php', ['cmid' => $cmid]));
+
 require_sesskey();
 
 $cm = get_coursemodule_from_id('assign', $cmid, 0, false, MUST_EXIST);
@@ -48,6 +50,10 @@ if ($current) {
     $record->timemodified = time();
     $DB->insert_record('local_writerview_config', $record);
 }
+
+// Invalidate the MUC cache for this assignment.
+$cache = cache::make('local_writerview', 'config');
+$cache->delete($cmid);
 
 $url = new moodle_url('/mod/assign/view.php', ['id' => $cmid]);
 redirect($url);

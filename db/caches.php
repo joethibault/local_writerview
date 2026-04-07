@@ -15,32 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy provider for local_writerview.
+ * Cache definitions for local_writerview.
  *
  * @package    local_writerview
  * @copyright  2026 Cursive Technology
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_writerview\privacy;
+defined('MOODLE_INTERNAL') || die();
 
-use core_privacy\local\metadata\null_provider;
-
-/**
- * Privacy provider declaring that no personal data is stored.
- *
- * @package    local_writerview
- * @copyright  2026 Cursive Technology
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class provider implements null_provider {
-
-    /**
-     * Returns the reason this plugin stores no personal data.
-     *
-     * @return string Language string key.
-     */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
-    }
-}
+$definitions = [
+    'config' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
+];

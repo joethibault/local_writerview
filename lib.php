@@ -27,8 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Extend the assignment module settings navigation with a Writer View toggle.
  *
- * @param settings_navigation $settingsnav The settings navigation object.
- * @param context $context The context of the module.
+ * This function is auto-discovered by Moodle because it follows the naming
+ * convention: local_{pluginname}_extend_settings_navigation.
+ *
+ * @param \settings_navigation $settingsnav The settings navigation object.
+ * @param \context $context The context of the module.
+ * @return void
  */
 function local_writerview_extend_settings_navigation(
     settings_navigation $settingsnav,
@@ -52,7 +56,7 @@ function local_writerview_extend_settings_navigation(
         return;
     }
 
-    $enabled = local_writerview_is_enabled($cm->id);
+    $enabled = \local_writerview\hook_callbacks::is_enabled($cm->id);
 
     $url = new moodle_url('/local/writerview/toggle.php', [
         'cmid' => $cm->id,
@@ -72,24 +76,4 @@ function local_writerview_extend_settings_navigation(
     );
 
     $modulesettings->add_node($node);
-}
-
-/**
- * Check whether Writer View is enabled for a given course module.
- *
- * If a row exists in local_writerview_config, use its value.
- * Otherwise fall back to the site-wide default.
- *
- * @param int $cmid Course module ID.
- * @return bool True if enabled.
- */
-function local_writerview_is_enabled(int $cmid): bool {
-    global $DB;
-
-    $record = $DB->get_record('local_writerview_config', ['cmid' => $cmid]);
-    if ($record) {
-        return (bool) $record->enabled;
-    }
-
-    return (bool) get_config('local_writerview', 'default_enabled');
 }

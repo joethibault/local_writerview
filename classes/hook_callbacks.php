@@ -24,19 +24,23 @@
 
 namespace local_writerview;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__ . '/../lib.php');
-
 /**
- * Hook callbacks for conditional JS/CSS injection.
+ * Hook callbacks for conditional JS/CSS injection on the assignment submission page.
+ *
+ * @package    local_writerview
+ * @copyright  2026 Cursive Technology
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
 
     /**
      * Conditionally inject Writer View JS and configuration.
      *
-     * @param \core\hook\output\before_standard_head_html_generation $hook
+     * This callback fires on every page via the before_standard_head_html_generation
+     * hook. It returns as early as possible on non-target pages.
+     *
+     * @param \core\hook\output\before_standard_head_html_generation $hook The hook instance.
+     * @return void
      */
     public static function inject_writerview(
         \core\hook\output\before_standard_head_html_generation $hook
@@ -56,29 +60,32 @@ class hook_callbacks {
 
         $cmid = $context->instanceid;
 
-        // Gate 3: Check if Writer View is enabled for this assignment.
-        if (!local_writerview_is_enabled($cmid)) {
+        // Gate 3: Check if Writer View is enabled for this assignment (cached).
+        if (!self::is_enabled($cmid)) {
             return;
         }
 
-        // Gather data for the JS module.
+        // Gather data with a single combined query.
         $cm = get_coursemodule_from_id('assign', $cmid, 0, false, MUST_EXIST);
 
-        $userfullname = fullname($USER);
+        $sql = "SELECT a.id, a.name, a.intro, a.introformat, s.status AS submissionstatus
+                  FROM {assign} a
+             LEFT JOIN {assign_submission} s ON s.assignment = a.id
+                       AND s.userid = :userid AND s.latest = 1
+                 WHERE a.id = :assignid";
 
-        $assign = $DB->get_record('assign', ['id' => $cm->instance], 'id, name, intro, introformat', MUST_EXIST);
+        $record = $DB->get_record_sql($sql, [
+            'userid' => $USER->id,
+            'assignid' => $cm->instance,
+        ], MUST_EXIST);
+
         $description = format_text(
-            $assign->intro,
-            $assign->introformat,
+            $record->intro,
+            $record->introformat,
             ['context' => $context, 'noclean' => false]
         );
 
-        $submission = $DB->get_record('assign_submission', [
-            'assignment' => $assign->id,
-            'userid' => $USER->id,
-            'latest' => 1,
-        ]);
-        $statustext = $submission ? $submission->status : 'new';
+        $statustext = $record->submissionstatus ?: 'new';
 
         // Fetch rubric preview if advanced grading is active.
         $rubrichtml = '';
@@ -90,11 +97,12 @@ class hook_callbacks {
             }
         }
 
+        // All user-facing strings passed via get_string().
         $jsconfig = [
             'cmid' => $cmid,
-            'studentName' => $userfullname,
+            'studentName' => fullname($USER),
             'description' => $description,
-            'assignmentName' => format_string($assign->name, true, ['context' => $context]),
+            'assignmentName' => format_string($record->name, true, ['context' => $context]),
             'submissionStatus' => $statustext,
             'rubricHtml' => $rubrichtml,
             'strings' => [
@@ -104,6 +112,13 @@ class hook_callbacks {
                 'wordcount' => get_string('sidebar_wordcount', 'local_writerview'),
                 'rubric' => get_string('sidebar_rubric', 'local_writerview'),
                 'togglesidebar' => get_string('sidebar_toggle', 'local_writerview'),
+                'arialabel' => get_string('sidebar_arialabel', 'local_writerview'),
+                'show' => get_string('sidebar_show', 'local_writerview'),
+                'hide' => get_string('sidebar_hide', 'local_writerview'),
+                'statusnew' => get_string('status_new', 'local_writerview'),
+                'statusdraft' => get_string('status_draft', 'local_writerview'),
+                'statussubmitted' => get_string('status_submitted', 'local_writerview'),
+                'statusreopened' => get_string('status_reopened', 'local_writerview'),
             ],
         ];
 
@@ -112,5 +127,35 @@ class hook_callbacks {
             'init',
             [$jsconfig]
         );
+    }
+
+    /**
+     * Check whether Writer View is enabled for a given course module.
+     *
+     * Uses MUC application cache to avoid repeated DB queries.
+     * Falls back to the site-wide default if no per-assignment config exists.
+     *
+     * @param int $cmid Course module ID.
+     * @return bool True if Writer View is enabled.
+     */
+    public static function is_enabled(int $cmid): bool {
+        $cache = \cache::make('local_writerview', 'config');
+        $cached = $cache->get($cmid);
+
+        if ($cached !== false) {
+            return (bool) $cached;
+        }
+
+        global $DB;
+        $record = $DB->get_record('local_writerview_config', ['cmid' => $cmid]);
+
+        if ($record) {
+            $enabled = (bool) $record->enabled;
+        } else {
+            $enabled = (bool) get_config('local_writerview', 'default_enabled');
+        }
+
+        $cache->set($cmid, (int) $enabled);
+        return $enabled;
     }
 }

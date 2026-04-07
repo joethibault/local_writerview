@@ -83,7 +83,7 @@ define([], function() {
         var sidebar = document.createElement('div');
         sidebar.className = 'writerview-sidebar';
         sidebar.setAttribute('role', 'complementary');
-        sidebar.setAttribute('aria-label', 'Assignment details');
+        sidebar.setAttribute('aria-label', config.strings.arialabel);
 
         // Header.
         var header = document.createElement('div');
@@ -207,7 +207,7 @@ define([], function() {
         var expandBtn = document.createElement('button');
         expandBtn.className = 'wv-rubric-toggle';
         expandBtn.type = 'button';
-        expandBtn.textContent = 'Show';
+        expandBtn.textContent = config.strings.show;
         expandBtn.setAttribute('aria-expanded', 'false');
 
         headerRow.appendChild(label);
@@ -221,7 +221,7 @@ define([], function() {
         expandBtn.addEventListener('click', function() {
             var isVisible = body.style.display !== 'none';
             body.style.display = isVisible ? 'none' : 'block';
-            expandBtn.textContent = isVisible ? 'Show' : 'Hide';
+            expandBtn.textContent = isVisible ? config.strings.show : config.strings.hide;
             expandBtn.setAttribute('aria-expanded', String(!isVisible));
         });
 
@@ -230,29 +230,12 @@ define([], function() {
         return card;
     }
 
-    function buildSection(title, content) {
-        var section = document.createElement('div');
-        section.className = 'writerview-sidebar-section';
-
-        var heading = document.createElement('h4');
-        heading.textContent = title;
-        section.appendChild(heading);
-
-        var body = document.createElement('div');
-        body.className = 'section-content';
-        if (content) {
-            body.textContent = content;
-        }
-        section.appendChild(body);
-        return section;
-    }
-
     function formatStatus(status) {
         var statusMap = {
-            'new': 'Not yet submitted',
-            'draft': 'Draft',
-            'submitted': 'Submitted',
-            'reopened': 'Reopened'
+            'new': config.strings.statusnew,
+            'draft': config.strings.statusdraft,
+            'submitted': config.strings.statussubmitted,
+            'reopened': config.strings.statusreopened
         };
         return statusMap[status] || status;
     }
