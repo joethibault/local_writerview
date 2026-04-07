@@ -83,7 +83,6 @@ body.writerview-active .mform {
     display: grid !important;
     grid-template-columns: 1fr 340px;
     grid-template-rows: auto;
-    min-height: calc(100vh - 140px);
 }
 
 body.writerview-active .mform > .writerview-editor-child {
@@ -150,7 +149,7 @@ body.writerview-active .writerview-sidebar {
     grid-column: 2;
     grid-row: 1 / -1;
     width: 340px;
-    height: calc(100vh - 60px);
+    max-height: calc(100vh - 60px);
     overflow-y: auto;
     padding: 0;
     background-color: #fff;
@@ -159,37 +158,40 @@ body.writerview-active .writerview-sidebar {
     border-inline-start: 1px solid #e0e0e0;
 }
 
-/* --- Sidebar header --- */
+/* --- Sidebar header (hidden, toggle is now an edge button) --- */
 body.writerview-active .wv-sidebar-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0.5rem 0.75rem;
-    background: #fff;
-    border-bottom: 1px solid #e0e0e0;
-    position: sticky;
-    top: 0;
-    z-index: 2;
+    display: none;
 }
 
 body.writerview-active .wv-sidebar-title {
     display: none;
 }
 
+/* --- Sidebar edge toggle button (Moodle block drawer style) --- */
 body.writerview-active .wv-toggle-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px;
-    color: #5f6368;
+    position: absolute;
+    top: 12px;
+    inset-inline-start: -14px;
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
     border-radius: 50%;
-    transition: background-color 0.15s ease;
+    cursor: pointer;
+    padding: 0;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
     line-height: 0;
-    flex-shrink: 0;
+    z-index: 3;
 }
 
 body.writerview-active .wv-toggle-btn:hover {
     background-color: #f1f3f4;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 body.writerview-active .wv-toggle-btn:focus-visible {
@@ -332,22 +334,34 @@ body.writerview-active .wv-rubric-body .gradingform_rubric .criterion .level {
 
 /* --- Collapsed state --- */
 body.writerview-active .writerview-sidebar.collapsed {
-    width: 44px;
-    overflow: hidden;
+    width: 0;
+    padding: 0;
+    border-inline-start: none;
+    overflow: visible;
 }
 
-body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body,
-body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-title {
+body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body {
     display: none;
 }
 
-body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-header {
-    justify-content: center;
-    padding: 0.875rem 0.5rem;
+body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn {
+    inset-inline-start: -38px;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    background: #1a73e8;
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn:hover {
+    background: #1557b0;
+    color: #fff;
 }
 
 body.writerview-active .mform:has(.writerview-sidebar.collapsed) {
-    grid-template-columns: 1fr 44px;
+    grid-template-columns: 1fr 0px;
 }
 
 /* --- Constrain media --- */

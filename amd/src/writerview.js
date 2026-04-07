@@ -85,28 +85,19 @@ define([], function() {
         sidebar.setAttribute('role', 'complementary');
         sidebar.setAttribute('aria-label', config.strings.arialabel);
 
-        // Header.
-        var header = document.createElement('div');
-        header.className = 'wv-sidebar-header';
-
-        var headerTitle = document.createElement('div');
-        headerTitle.className = 'wv-sidebar-title';
-        headerTitle.textContent = config.assignmentName;
-        header.appendChild(headerTitle);
-
+        // Edge toggle button (positioned absolutely on the sidebar border).
         var toggleBtn = document.createElement('button');
         toggleBtn.className = 'wv-toggle-btn';
         toggleBtn.type = 'button';
         toggleBtn.setAttribute('aria-label', config.strings.togglesidebar);
         toggleBtn.setAttribute('aria-expanded', 'true');
-        toggleBtn.innerHTML = chevronLeft();
+        toggleBtn.innerHTML = chevronRight();
         toggleBtn.addEventListener('click', function() {
             var isCollapsed = sidebar.classList.toggle('collapsed');
-            toggleBtn.innerHTML = isCollapsed ? chevronRight() : chevronLeft();
+            toggleBtn.innerHTML = isCollapsed ? chevronLeft() : chevronRight();
             toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
         });
-        header.appendChild(toggleBtn);
-        sidebar.appendChild(header);
+        sidebar.appendChild(toggleBtn);
 
         // Content.
         var content = document.createElement('div');
