@@ -24,20 +24,11 @@
 define([], function() {
     'use strict';
 
-    /** @type {Object} Module configuration passed from PHP. */
-    let config = null;
+    var config = null;
+    var wordCountInterval = null;
 
-    /** @type {number|null} Word count update interval ID. */
-    let wordCountInterval = null;
-
-    /**
-     * Initialize Writer View.
-     *
-     * @param {Object} cfg Configuration from PHP hook_callbacks.
-     */
     function init(cfg) {
         config = cfg;
-
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', setup);
         } else {
@@ -45,28 +36,20 @@ define([], function() {
         }
     }
 
-    /**
-     * Main setup routine.
-     */
     function setup() {
         document.body.classList.add('writerview-active');
-        waitForEditor(function(editorContainer) {
-            rearrangeDOM(editorContainer);
+        waitForEditor(function() {
+            rearrangeDOM();
             startWordCount();
         });
     }
 
-    /**
-     * Poll for TinyMCE editor to be present in the DOM.
-     *
-     * @param {Function} callback Called with the editor container element.
-     */
     function waitForEditor(callback) {
-        let attempts = 0;
-        const maxAttempts = 100;
-        const interval = setInterval(function() {
+        var attempts = 0;
+        var maxAttempts = 100;
+        var interval = setInterval(function() {
             attempts++;
-            const editor = document.querySelector('.tox-tinymce');
+            var editor = document.querySelector('.tox-tinymce');
             if (editor) {
                 clearInterval(interval);
                 callback(editor);
@@ -77,228 +60,255 @@ define([], function() {
         }, 100);
     }
 
-    /**
-     * Rearrange the DOM to create the Writer View layout.
-     *
-     * @param {HTMLElement} editorContainer The .tox-tinymce element.
-     */
-    function rearrangeDOM(editorContainer) {
-        const form = document.querySelector(
-            '#page-content div[role="main"] .mform'
-        );
+    function rearrangeDOM() {
+        var form = document.querySelector('#page-content div[role="main"] .mform');
         if (!form) {
             window.console.warn('[WriterView] .mform not found. Aborting.');
             return;
         }
 
-        // Tag existing form children as the editor region via CSS class.
-        // DO NOT move them — moving TinyMCE's iframe breaks its event bindings.
-        Array.from(form.children).forEach(function(child) {
+        // Tag existing children — do NOT move them (breaks TinyMCE iframe).
+        var children = Array.from(form.children);
+        children.forEach(function(child) {
             if (child.nodeType === 1) {
                 child.classList.add('writerview-editor-child');
             }
         });
 
-        // Build the sidebar and append it to the form.
-        // CSS grid handles the two-column layout without moving elements.
-        const sidebar = buildSidebar();
-        form.appendChild(sidebar);
-
-        // Hide the original assignment description on the page.
+        form.appendChild(buildSidebar());
         hideOriginalDescription();
     }
 
-    /**
-     * Build the sidebar DOM structure.
-     *
-     * @returns {HTMLElement} The sidebar element.
-     */
     function buildSidebar() {
-        const sidebar = document.createElement('div');
+        var sidebar = document.createElement('div');
         sidebar.className = 'writerview-sidebar';
         sidebar.setAttribute('role', 'complementary');
-        sidebar.setAttribute('aria-label', config.strings.togglesidebar);
+        sidebar.setAttribute('aria-label', 'Assignment details');
 
-        // Sidebar header with title and toggle.
-        const header = document.createElement('div');
-        header.className = 'writerview-sidebar-header';
+        // Header.
+        var header = document.createElement('div');
+        header.className = 'wv-sidebar-header';
 
-        const headerTitle = document.createElement('h3');
+        var headerTitle = document.createElement('div');
+        headerTitle.className = 'wv-sidebar-title';
         headerTitle.textContent = config.assignmentName;
         header.appendChild(headerTitle);
 
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'writerview-sidebar-toggle';
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'wv-toggle-btn';
         toggleBtn.type = 'button';
         toggleBtn.setAttribute('aria-label', config.strings.togglesidebar);
         toggleBtn.setAttribute('aria-expanded', 'true');
-        toggleBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-            '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>' +
-            '</svg>';
+        toggleBtn.innerHTML = chevronLeft();
         toggleBtn.addEventListener('click', function() {
-            const isCollapsed = sidebar.classList.toggle('collapsed');
-            toggleBtn.innerHTML = isCollapsed
-                ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-                  '<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>' +
-                  '</svg>'
-                : '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-                  '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>' +
-                  '</svg>';
+            var isCollapsed = sidebar.classList.toggle('collapsed');
+            toggleBtn.innerHTML = isCollapsed ? chevronRight() : chevronLeft();
             toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
         });
         header.appendChild(toggleBtn);
         sidebar.appendChild(header);
 
-        // Scrollable content wrapper.
-        const contentWrapper = document.createElement('div');
-        contentWrapper.className = 'writerview-sidebar-content';
+        // Content.
+        var content = document.createElement('div');
+        content.className = 'wv-sidebar-body';
 
-        // Section 1: Student Information.
-        contentWrapper.appendChild(
-            buildSection(config.strings.studentinfo, config.studentName)
-        );
+        // Word count — top, most visible.
+        content.appendChild(buildWordCountCard());
 
-        // Section 2: Assignment Description (HTML content).
-        const descSection = buildSection(config.strings.description, '');
-        descSection.querySelector('.section-content').innerHTML = config.description;
-        contentWrapper.appendChild(descSection);
+        // Status badge.
+        content.appendChild(buildStatusCard());
 
-        // Section 3: Submission Status.
-        contentWrapper.appendChild(
-            buildSection(config.strings.status, formatStatus(config.submissionStatus))
-        );
+        // Student info.
+        content.appendChild(buildCard(
+            config.strings.studentinfo,
+            config.studentName,
+            'user'
+        ));
 
-        // Section 4: Rubric (if available).
+        // Assignment description.
+        var descCard = buildCard(config.strings.description, '', 'doc');
+        descCard.querySelector('.wv-card-body').innerHTML = config.description;
+        content.appendChild(descCard);
+
+        // Rubric (collapsible).
         if (config.rubricHtml) {
-            const rubricSection = buildSection(config.strings.rubric, '');
-            rubricSection.querySelector('.section-content').innerHTML = config.rubricHtml;
-            rubricSection.querySelector('.section-content').classList.add('writerview-rubric');
-            contentWrapper.appendChild(rubricSection);
+            content.appendChild(buildRubricCard());
         }
 
-        // Section 5: Word Count.
-        const wcSection = buildSection(config.strings.wordcount, '');
-        const wcValue = document.createElement('span');
-        wcValue.className = 'writerview-wordcount-value';
-        wcValue.id = 'writerview-wordcount';
-        wcValue.textContent = '0';
-        wcSection.querySelector('.section-content').appendChild(wcValue);
-        contentWrapper.appendChild(wcSection);
-
-        sidebar.appendChild(contentWrapper);
+        sidebar.appendChild(content);
         return sidebar;
     }
 
-    /**
-     * Build a single sidebar section.
-     *
-     * @param {string} title Section heading.
-     * @param {string} content Text content.
-     * @returns {HTMLElement} The section element.
-     */
+    function buildWordCountCard() {
+        var card = document.createElement('div');
+        card.className = 'wv-card wv-wordcount-card';
+
+        var label = document.createElement('div');
+        label.className = 'wv-wordcount-label';
+        label.textContent = config.strings.wordcount;
+
+        var value = document.createElement('div');
+        value.className = 'wv-wordcount-value';
+        value.id = 'writerview-wordcount';
+        value.textContent = '0';
+
+        card.appendChild(label);
+        card.appendChild(value);
+        return card;
+    }
+
+    function buildStatusCard() {
+        var card = document.createElement('div');
+        card.className = 'wv-card wv-status-card';
+
+        var label = document.createElement('div');
+        label.className = 'wv-card-label';
+        label.textContent = config.strings.status;
+
+        var badge = document.createElement('span');
+        badge.className = 'wv-status-badge wv-status-' + config.submissionStatus;
+        badge.textContent = formatStatus(config.submissionStatus);
+
+        card.appendChild(label);
+        card.appendChild(badge);
+        return card;
+    }
+
+    function buildCard(title, text, icon) {
+        var card = document.createElement('div');
+        card.className = 'wv-card';
+
+        var label = document.createElement('div');
+        label.className = 'wv-card-label';
+        label.textContent = title;
+
+        var body = document.createElement('div');
+        body.className = 'wv-card-body';
+        if (text) {
+            body.textContent = text;
+        }
+
+        card.appendChild(label);
+        card.appendChild(body);
+        return card;
+    }
+
+    function buildRubricCard() {
+        var card = document.createElement('div');
+        card.className = 'wv-card wv-rubric-card';
+
+        var headerRow = document.createElement('div');
+        headerRow.className = 'wv-rubric-header';
+
+        var label = document.createElement('div');
+        label.className = 'wv-card-label';
+        label.textContent = config.strings.rubric;
+
+        var expandBtn = document.createElement('button');
+        expandBtn.className = 'wv-rubric-toggle';
+        expandBtn.type = 'button';
+        expandBtn.textContent = 'Show';
+        expandBtn.setAttribute('aria-expanded', 'false');
+
+        headerRow.appendChild(label);
+        headerRow.appendChild(expandBtn);
+
+        var body = document.createElement('div');
+        body.className = 'wv-rubric-body';
+        body.style.display = 'none';
+        body.innerHTML = config.rubricHtml;
+
+        expandBtn.addEventListener('click', function() {
+            var isVisible = body.style.display !== 'none';
+            body.style.display = isVisible ? 'none' : 'block';
+            expandBtn.textContent = isVisible ? 'Show' : 'Hide';
+            expandBtn.setAttribute('aria-expanded', String(!isVisible));
+        });
+
+        card.appendChild(headerRow);
+        card.appendChild(body);
+        return card;
+    }
+
     function buildSection(title, content) {
-        const section = document.createElement('div');
+        var section = document.createElement('div');
         section.className = 'writerview-sidebar-section';
 
-        const heading = document.createElement('h4');
+        var heading = document.createElement('h4');
         heading.textContent = title;
         section.appendChild(heading);
 
-        const body = document.createElement('div');
+        var body = document.createElement('div');
         body.className = 'section-content';
         if (content) {
             body.textContent = content;
         }
         section.appendChild(body);
-
         return section;
     }
 
-    /**
-     * Format the submission status string for display.
-     *
-     * @param {string} status Raw status from the database.
-     * @returns {string} Human-readable status.
-     */
     function formatStatus(status) {
-        const statusMap = {
+        var statusMap = {
             'new': 'Not yet submitted',
-            'draft': 'Draft (not submitted)',
-            'submitted': 'Submitted for grading',
-            'reopened': 'Reopened',
+            'draft': 'Draft',
+            'submitted': 'Submitted',
+            'reopened': 'Reopened'
         };
         return statusMap[status] || status;
     }
 
-    /**
-     * Hide the original assignment description above the form.
-     */
+    function chevronLeft() {
+        return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
+            '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>';
+    }
+
+    function chevronRight() {
+        return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
+            '<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>';
+    }
+
     function hideOriginalDescription() {
-        const selectors = [
-            '.activity-description',
-            '#intro',
-        ];
-        selectors.forEach(function(sel) {
-            const el = document.querySelector(sel);
+        ['.activity-description', '#intro'].forEach(function(sel) {
+            var el = document.querySelector(sel);
             if (el) {
                 el.classList.add('writerview-hidden-original');
             }
         });
     }
 
-    /**
-     * Start the word count updater.
-     */
     function startWordCount() {
-        /**
-         * Read TinyMCE content and update the word count display.
-         */
         function updateCount() {
-            const iframe = document.querySelector('.tox-tinymce iframe');
+            var iframe = document.querySelector('.tox-tinymce iframe');
             if (!iframe || !iframe.contentDocument) {
                 return;
             }
-            const body = iframe.contentDocument.body;
+            var body = iframe.contentDocument.body;
             if (!body) {
                 return;
             }
-            const text = body.innerText || body.textContent || '';
-            const count = countWords(text);
-            const display = document.getElementById('writerview-wordcount');
+            var text = body.innerText || body.textContent || '';
+            var count = countWords(text);
+            var display = document.getElementById('writerview-wordcount');
             if (display) {
                 display.textContent = count;
             }
         }
 
         updateCount();
-
         wordCountInterval = setInterval(updateCount, 2000);
-
-        // Attach direct listener for real-time updates.
         tryAttachEditorListener(updateCount);
     }
 
-    /**
-     * Attach input listener to the TinyMCE editor body.
-     *
-     * @param {Function} updateFn The word count update function.
-     */
     function tryAttachEditorListener(updateFn) {
-        const iframe = document.querySelector('.tox-tinymce iframe');
+        var iframe = document.querySelector('.tox-tinymce iframe');
         if (!iframe || !iframe.contentDocument || !iframe.contentDocument.body) {
             return;
         }
         iframe.contentDocument.body.addEventListener('input', updateFn);
     }
 
-    /**
-     * Count words in a text string.
-     *
-     * @param {string} text The text to count.
-     * @returns {number} Word count.
-     */
     function countWords(text) {
-        const trimmed = text.trim();
+        var trimmed = text.trim();
         if (trimmed.length === 0) {
             return 0;
         }
@@ -306,6 +316,6 @@ define([], function() {
     }
 
     return {
-        init: init,
+        init: init
     };
 });

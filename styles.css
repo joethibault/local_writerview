@@ -11,7 +11,6 @@ body.writerview-active #page-content #region-main {
     max-width: none !important;
 }
 
-/* Remove width constraints from the form wrapper */
 body.writerview-active .editsubmissionform {
     max-width: none !important;
     width: 100% !important;
@@ -47,7 +46,6 @@ body.writerview-active #page-header .breadcrumb {
     margin-bottom: 0.25rem;
 }
 
-/* Condense activity header area */
 body.writerview-active .activity-header {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
@@ -57,20 +55,18 @@ body.writerview-active .activity-header .activity-information {
     margin-bottom: 0.25rem !important;
 }
 
-/* Hide the completion badge — status is shown in sidebar */
 body.writerview-active .activity-header .completion-info {
     display: none !important;
 }
 
-/* ===== Layout container — CSS Grid ===== */
+/* ===== Layout — CSS Grid ===== */
 body.writerview-active .mform {
     display: grid !important;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 340px;
     grid-template-rows: auto;
     min-height: calc(100vh - 140px);
 }
 
-/* All original form children go in the left column */
 body.writerview-active .mform > .writerview-editor-child {
     grid-column: 1;
 }
@@ -94,164 +90,15 @@ body.writerview-active .mform #fgroup_id_buttonar .col-md-9 {
     max-width: 100% !important;
 }
 
-/* ===== Google Docs-style editor max-width ===== */
+/* ===== Google Docs-style editor ===== */
 body.writerview-active .mform .tox-tinymce {
     max-width: 816px;
     margin: 0 auto;
-    border: 1px solid #c4c7c5 !important;
-    border-radius: 0 0 4px 4px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #dadce0 !important;
+    border-radius: 0 0 8px 8px !important;
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1);
 }
 
-body.writerview-active .mform .tox .tox-editor-header {
-    max-width: 816px;
-    margin: 0 auto;
-}
-
-/* ===== Sidebar (right column) ===== */
-body.writerview-active .writerview-sidebar {
-    grid-column: 2;
-    grid-row: 1 / -1;
-    width: 320px;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-    border-inline-start: 1px solid #dee2e6;
-    padding: 0;
-    background-color: #f8f9fa;
-    position: sticky;
-    top: 60px;
-}
-
-/* Sidebar header with toggle */
-body.writerview-active .writerview-sidebar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-body.writerview-active .writerview-sidebar-header h3 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin: 0;
-    color: #495057;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 240px;
-}
-
-body.writerview-active .writerview-sidebar.collapsed {
-    grid-column: 2;
-    width: 40px;
-    overflow: hidden;
-}
-
-body.writerview-active .writerview-sidebar.collapsed .writerview-sidebar-content,
-body.writerview-active .writerview-sidebar.collapsed .writerview-sidebar-header h3 {
-    display: none;
-}
-
-/* When collapsed, adjust grid to give editor more space */
-body.writerview-active .mform:has(.writerview-sidebar.collapsed) {
-    grid-template-columns: 1fr 40px;
-}
-
-/* ===== Sidebar toggle button ===== */
-body.writerview-active .writerview-sidebar-toggle {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    font-size: 1rem;
-    color: #6c757d;
-    border-radius: 4px;
-    transition: background-color 0.15s ease, color 0.15s ease;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-body.writerview-active .writerview-sidebar-toggle:hover {
-    background-color: #e9ecef;
-    color: #495057;
-}
-
-body.writerview-active .writerview-sidebar-toggle:focus {
-    outline: 2px solid #0f6cbf;
-    outline-offset: 2px;
-}
-
-body.writerview-active .writerview-sidebar.collapsed .writerview-sidebar-toggle {
-    margin: 0.5rem auto;
-    display: block;
-}
-
-/* ===== Sidebar content ===== */
-body.writerview-active .writerview-sidebar-content {
-    padding: 1rem;
-}
-
-/* ===== Sidebar sections ===== */
-body.writerview-active .writerview-sidebar-section {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-body.writerview-active .writerview-sidebar-section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-
-body.writerview-active .writerview-sidebar-section h4 {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #868e96;
-    margin-bottom: 0.4rem;
-}
-
-body.writerview-active .writerview-sidebar-section .section-content {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: #343a40;
-}
-
-/* ===== Word count ===== */
-body.writerview-active .writerview-wordcount-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #0f6cbf;
-    line-height: 1.2;
-}
-
-/* ===== Rubric in sidebar ===== */
-body.writerview-active .writerview-rubric {
-    overflow-x: auto;
-    margin-inline: -0.5rem;
-}
-
-body.writerview-active .writerview-rubric table {
-    font-size: 0.7rem;
-    width: 100%;
-    table-layout: fixed;
-}
-
-body.writerview-active .writerview-rubric .gradingform_rubric .criterion .description,
-body.writerview-active .writerview-rubric .gradingform_rubric .criterion .level {
-    font-size: 0.7rem;
-    padding: 4px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-/* ===== Editor height — fill viewport ===== */
 body.writerview-active .mform .tox-tinymce {
     min-height: calc(100vh - 180px) !important;
     height: calc(100vh - 180px) !important;
@@ -261,31 +108,245 @@ body.writerview-active .mform .tox-tinymce iframe {
     min-height: calc(100vh - 240px) !important;
 }
 
-/* ===== Hide elements relocated to sidebar ===== */
-body.writerview-active .writerview-hidden-original {
-    display: none !important;
-}
-
-/* ===== Hide the "Add submission" fieldset legend/toggle header ===== */
+/* ===== Hide fieldset header & original description ===== */
 body.writerview-active .mform #id_submissionheader > .d-flex.align-items-center {
     display: none !important;
 }
 
-/* ===== Constrain embedded media in sidebar ===== */
-body.writerview-active .writerview-sidebar-section .section-content img,
-body.writerview-active .writerview-sidebar-section .section-content video,
-body.writerview-active .writerview-sidebar-section .section-content iframe {
-    max-width: 100%;
-    height: auto;
+body.writerview-active .writerview-hidden-original {
+    display: none !important;
 }
 
-/* ===== Form action buttons ===== */
+/* ===== Form buttons ===== */
 body.writerview-active .mform #fgroup_id_buttonar {
     margin-top: 0.75rem;
     text-align: center;
 }
 
-/* ===== Responsive: stack on small screens ===== */
+/* ================================================================
+   SIDEBAR — Card-based design matching Cursive Analytics style
+   ================================================================ */
+
+body.writerview-active .writerview-sidebar {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    width: 340px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 0;
+    background-color: #f5f6f8;
+    position: sticky;
+    top: 60px;
+    border-inline-start: 1px solid #e0e0e0;
+}
+
+/* --- Sidebar header --- */
+body.writerview-active .wv-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+body.writerview-active .wv-sidebar-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 260px;
+    line-height: 1.3;
+}
+
+body.writerview-active .wv-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: #5f6368;
+    border-radius: 50%;
+    transition: background-color 0.15s ease;
+    line-height: 0;
+    flex-shrink: 0;
+}
+
+body.writerview-active .wv-toggle-btn:hover {
+    background-color: #f1f3f4;
+}
+
+body.writerview-active .wv-toggle-btn:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+}
+
+/* --- Sidebar body --- */
+body.writerview-active .wv-sidebar-body {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+/* --- Card base --- */
+body.writerview-active .wv-card {
+    background: #fff;
+    border: 1px solid #e8eaed;
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+}
+
+body.writerview-active .wv-card-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #80868b;
+    margin-bottom: 0.35rem;
+}
+
+body.writerview-active .wv-card-body {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #3c4043;
+}
+
+/* --- Word count card — prominent --- */
+body.writerview-active .wv-wordcount-card {
+    text-align: center;
+    padding: 1rem;
+    border-color: #d2e3fc;
+    background: linear-gradient(135deg, #f8fbff 0%, #fff 100%);
+}
+
+body.writerview-active .wv-wordcount-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #80868b;
+    margin-bottom: 0.25rem;
+}
+
+body.writerview-active .wv-wordcount-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a73e8;
+    line-height: 1.1;
+}
+
+/* --- Status card --- */
+body.writerview-active .wv-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+body.writerview-active .wv-status-new {
+    background-color: #fce8e6;
+    color: #c5221f;
+}
+
+body.writerview-active .wv-status-draft {
+    background-color: #fef7e0;
+    color: #e37400;
+}
+
+body.writerview-active .wv-status-submitted {
+    background-color: #e6f4ea;
+    color: #137333;
+}
+
+body.writerview-active .wv-status-reopened {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+/* --- Rubric card --- */
+body.writerview-active .wv-rubric-card {
+    padding: 0.75rem 1rem;
+}
+
+body.writerview-active .wv-rubric-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+body.writerview-active .wv-rubric-toggle {
+    background: none;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #5f6368;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+body.writerview-active .wv-rubric-toggle:hover {
+    background-color: #f1f3f4;
+}
+
+body.writerview-active .wv-rubric-body {
+    margin-top: 0.75rem;
+    overflow-x: auto;
+}
+
+body.writerview-active .wv-rubric-body table {
+    font-size: 0.7rem;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+body.writerview-active .wv-rubric-body .gradingform_rubric .criterion .description,
+body.writerview-active .wv-rubric-body .gradingform_rubric .criterion .level {
+    font-size: 0.7rem;
+    padding: 6px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    vertical-align: top;
+}
+
+/* --- Collapsed state --- */
+body.writerview-active .writerview-sidebar.collapsed {
+    width: 44px;
+    overflow: hidden;
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body,
+body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-title {
+    display: none;
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-header {
+    justify-content: center;
+    padding: 0.875rem 0.5rem;
+}
+
+body.writerview-active .mform:has(.writerview-sidebar.collapsed) {
+    grid-template-columns: 1fr 44px;
+}
+
+/* --- Constrain media --- */
+body.writerview-active .wv-card-body img,
+body.writerview-active .wv-card-body video,
+body.writerview-active .wv-card-body iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
     body.writerview-active .mform {
         grid-template-columns: 1fr !important;
@@ -299,6 +360,6 @@ body.writerview-active .mform #fgroup_id_buttonar {
         max-height: 300px;
         position: static;
         border-inline-start: none;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid #e0e0e0;
     }
 }
