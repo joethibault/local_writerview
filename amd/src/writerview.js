@@ -26,6 +26,7 @@ define([], function() {
 
     var config = null;
     var wordCountInterval = null;
+    var dueDateInterval = null;
 
     function init(cfg) {
         config = cfg;
@@ -41,21 +42,21 @@ define([], function() {
         waitForEditor(function() {
             rearrangeDOM();
             startWordCount();
+            if (config.dueDate > 0) {
+                startDueDateTimer();
+            }
         });
     }
 
     function waitForEditor(callback) {
         var attempts = 0;
-        var maxAttempts = 100;
         var interval = setInterval(function() {
             attempts++;
-            var editor = document.querySelector('.tox-tinymce');
-            if (editor) {
+            if (document.querySelector('.tox-tinymce')) {
                 clearInterval(interval);
-                callback(editor);
-            } else if (attempts >= maxAttempts) {
+                callback();
+            } else if (attempts >= 100) {
                 clearInterval(interval);
-                window.console.warn('[WriterView] TinyMCE editor not found after 10s. Aborting.');
             }
         }, 100);
     }
@@ -63,13 +64,10 @@ define([], function() {
     function rearrangeDOM() {
         var form = document.querySelector('#page-content div[role="main"] .mform');
         if (!form) {
-            window.console.warn('[WriterView] .mform not found. Aborting.');
             return;
         }
 
-        // Tag existing children — do NOT move them (breaks TinyMCE iframe).
-        var children = Array.from(form.children);
-        children.forEach(function(child) {
+        Array.from(form.children).forEach(function(child) {
             if (child.nodeType === 1) {
                 child.classList.add('writerview-editor-child');
             }
@@ -79,147 +77,269 @@ define([], function() {
         hideOriginalDescription();
     }
 
+    // ===================== SIDEBAR =====================
+
     function buildSidebar() {
         var sidebar = document.createElement('div');
         sidebar.className = 'writerview-sidebar';
         sidebar.setAttribute('role', 'complementary');
         sidebar.setAttribute('aria-label', config.strings.arialabel);
 
-        // Edge toggle button (positioned absolutely on the sidebar border).
+        // Show/Hide details toggle at top.
+        var toggleBar = document.createElement('div');
+        toggleBar.className = 'wv-toggle-bar';
+
         var toggleBtn = document.createElement('button');
         toggleBtn.className = 'wv-toggle-btn';
         toggleBtn.type = 'button';
-        toggleBtn.setAttribute('aria-label', config.strings.togglesidebar);
+        toggleBtn.textContent = config.strings.hidedetails;
         toggleBtn.setAttribute('aria-expanded', 'true');
-        toggleBtn.innerHTML = chevronRight();
+
+        var bodyEl = document.createElement('div');
+        bodyEl.className = 'wv-sidebar-body';
+
         toggleBtn.addEventListener('click', function() {
             var isCollapsed = sidebar.classList.toggle('collapsed');
-            toggleBtn.innerHTML = isCollapsed ? chevronLeft() : chevronRight();
+            toggleBtn.textContent = isCollapsed
+                ? config.strings.showdetails
+                : config.strings.hidedetails;
             toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
         });
-        sidebar.appendChild(toggleBtn);
 
-        // Content.
-        var content = document.createElement('div');
-        content.className = 'wv-sidebar-body';
+        toggleBar.appendChild(toggleBtn);
+        sidebar.appendChild(toggleBar);
 
-        // Word count — top, most visible.
-        content.appendChild(buildWordCountCard());
+        // Word count — always visible at top.
+        bodyEl.appendChild(buildWordCountCard());
 
-        // Status badge.
-        content.appendChild(buildStatusCard());
-
-        // Student info.
-        content.appendChild(buildCard(
-            config.strings.studentinfo,
-            config.studentName,
-            'user'
-        ));
-
-        // Assignment description.
-        var descCard = buildCard(config.strings.description, '', 'doc');
-        descCard.querySelector('.wv-card-body').innerHTML = config.description;
-        content.appendChild(descCard);
-
-        // Rubric (collapsible).
-        if (config.rubricHtml) {
-            content.appendChild(buildRubricCard());
+        // Due date + timer (if set).
+        if (config.dueDate > 0) {
+            bodyEl.appendChild(buildDueDateCard());
         }
 
-        sidebar.appendChild(content);
+        // Collapsible sections.
+        bodyEl.appendChild(buildCollapsibleCard(
+            config.strings.status,
+            buildStatusContent(),
+            true
+        ));
+
+        bodyEl.appendChild(buildCollapsibleCard(
+            config.strings.studentinfo,
+            buildTextContent(config.studentName),
+            false
+        ));
+
+        bodyEl.appendChild(buildCollapsibleCard(
+            config.strings.description,
+            buildHtmlContent(config.description),
+            true
+        ));
+
+        // Rubric — opens as slide-over panel, not inline.
+        if (config.rubricHtml) {
+            bodyEl.appendChild(buildRubricTrigger());
+            buildRubricPanel();
+        }
+
+        sidebar.appendChild(bodyEl);
         return sidebar;
     }
 
+    // ===================== CARDS =====================
+
     function buildWordCountCard() {
-        var card = document.createElement('div');
-        card.className = 'wv-card wv-wordcount-card';
-
-        var label = document.createElement('div');
-        label.className = 'wv-wordcount-label';
+        var card = el('div', 'wv-card wv-wordcount-card');
+        var label = el('div', 'wv-card-label');
         label.textContent = config.strings.wordcount;
-
-        var value = document.createElement('div');
-        value.className = 'wv-wordcount-value';
+        var value = el('div', 'wv-wordcount-value');
         value.id = 'writerview-wordcount';
         value.textContent = '0';
-
         card.appendChild(label);
         card.appendChild(value);
         return card;
     }
 
-    function buildStatusCard() {
-        var card = document.createElement('div');
-        card.className = 'wv-card wv-status-card';
+    function buildDueDateCard() {
+        var card = el('div', 'wv-card wv-duedate-card');
+        var label = el('div', 'wv-card-label');
+        label.textContent = config.strings.duedate;
 
-        var label = document.createElement('div');
-        label.className = 'wv-card-label';
-        label.textContent = config.strings.status;
-
-        var badge = document.createElement('span');
-        badge.className = 'wv-status-badge wv-status-' + config.submissionStatus;
-        badge.textContent = formatStatus(config.submissionStatus);
-
-        card.appendChild(label);
-        card.appendChild(badge);
-        return card;
-    }
-
-    function buildCard(title, text, icon) {
-        var card = document.createElement('div');
-        card.className = 'wv-card';
-
-        var label = document.createElement('div');
-        label.className = 'wv-card-label';
-        label.textContent = title;
-
-        var body = document.createElement('div');
-        body.className = 'wv-card-body';
-        if (text) {
-            body.textContent = text;
-        }
-
-        card.appendChild(label);
-        card.appendChild(body);
-        return card;
-    }
-
-    function buildRubricCard() {
-        var card = document.createElement('div');
-        card.className = 'wv-card wv-rubric-card';
-
-        var headerRow = document.createElement('div');
-        headerRow.className = 'wv-rubric-header';
-
-        var label = document.createElement('div');
-        label.className = 'wv-card-label';
-        label.textContent = config.strings.rubric;
-
-        var expandBtn = document.createElement('button');
-        expandBtn.className = 'wv-rubric-toggle';
-        expandBtn.type = 'button';
-        expandBtn.textContent = config.strings.show;
-        expandBtn.setAttribute('aria-expanded', 'false');
-
-        headerRow.appendChild(label);
-        headerRow.appendChild(expandBtn);
-
-        var body = document.createElement('div');
-        body.className = 'wv-rubric-body';
-        body.style.display = 'none';
-        body.innerHTML = config.rubricHtml;
-
-        expandBtn.addEventListener('click', function() {
-            var isVisible = body.style.display !== 'none';
-            body.style.display = isVisible ? 'none' : 'block';
-            expandBtn.textContent = isVisible ? config.strings.show : config.strings.hide;
-            expandBtn.setAttribute('aria-expanded', String(!isVisible));
+        var dateStr = el('div', 'wv-duedate-date');
+        var d = new Date(config.dueDate * 1000);
+        dateStr.textContent = d.toLocaleDateString(undefined, {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
         });
 
-        card.appendChild(headerRow);
+        var timer = el('div', 'wv-duedate-timer');
+        timer.id = 'writerview-timer';
+        timer.textContent = formatTimeRemaining(config.dueDate);
+
+        card.appendChild(label);
+        card.appendChild(dateStr);
+        card.appendChild(timer);
+        return card;
+    }
+
+    function buildCollapsibleCard(title, contentEl, startOpen) {
+        var card = el('div', 'wv-card wv-collapsible');
+        var header = el('div', 'wv-collapsible-header');
+
+        var label = el('div', 'wv-card-label');
+        label.textContent = title;
+        label.style.marginBottom = '0';
+
+        var toggle = el('button', 'wv-section-toggle');
+        toggle.type = 'button';
+        toggle.textContent = startOpen ? config.strings.hide : config.strings.show;
+
+        var body = el('div', 'wv-collapsible-body');
+        body.appendChild(contentEl);
+        body.style.display = startOpen ? 'block' : 'none';
+
+        toggle.addEventListener('click', function() {
+            var visible = body.style.display !== 'none';
+            body.style.display = visible ? 'none' : 'block';
+            toggle.textContent = visible ? config.strings.show : config.strings.hide;
+        });
+
+        header.appendChild(label);
+        header.appendChild(toggle);
+        card.appendChild(header);
         card.appendChild(body);
         return card;
     }
+
+    function buildStatusContent() {
+        var badge = el('span', 'wv-status-badge wv-status-' + config.submissionStatus);
+        badge.textContent = formatStatus(config.submissionStatus);
+        return badge;
+    }
+
+    function buildTextContent(text) {
+        var div = el('div', 'wv-card-body');
+        div.textContent = text;
+        return div;
+    }
+
+    function buildHtmlContent(html) {
+        var div = el('div', 'wv-card-body');
+        div.innerHTML = html;
+        return div;
+    }
+
+    // ===================== RUBRIC SLIDE-OVER =====================
+
+    function buildRubricTrigger() {
+        var card = el('div', 'wv-card wv-rubric-trigger');
+        var header = el('div', 'wv-collapsible-header');
+
+        var label = el('div', 'wv-card-label');
+        label.textContent = config.strings.rubric;
+        label.style.marginBottom = '0';
+
+        var btn = el('button', 'wv-section-toggle');
+        btn.type = 'button';
+        btn.textContent = config.strings.show;
+        btn.addEventListener('click', function() {
+            var panel = document.getElementById('wv-rubric-panel');
+            if (panel) {
+                panel.classList.add('open');
+            }
+        });
+
+        header.appendChild(label);
+        header.appendChild(btn);
+        card.appendChild(header);
+        return card;
+    }
+
+    function buildRubricPanel() {
+        // Backdrop.
+        var backdrop = el('div', 'wv-rubric-backdrop');
+        backdrop.id = 'wv-rubric-backdrop';
+        backdrop.addEventListener('click', closeRubricPanel);
+
+        // Panel.
+        var panel = el('div', 'wv-rubric-panel');
+        panel.id = 'wv-rubric-panel';
+
+        var panelHeader = el('div', 'wv-rubric-panel-header');
+        var panelTitle = el('h3', '');
+        panelTitle.textContent = config.strings.rubric;
+
+        var closeBtn = el('button', 'wv-rubric-close');
+        closeBtn.type = 'button';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.setAttribute('aria-label', config.strings.hide);
+        closeBtn.addEventListener('click', closeRubricPanel);
+
+        panelHeader.appendChild(panelTitle);
+        panelHeader.appendChild(closeBtn);
+
+        var panelBody = el('div', 'wv-rubric-panel-body');
+        panelBody.innerHTML = config.rubricHtml;
+
+        panel.appendChild(panelHeader);
+        panel.appendChild(panelBody);
+
+        document.body.appendChild(backdrop);
+        document.body.appendChild(panel);
+    }
+
+    function closeRubricPanel() {
+        var panel = document.getElementById('wv-rubric-panel');
+        var backdrop = document.getElementById('wv-rubric-backdrop');
+        if (panel) {
+            panel.classList.remove('open');
+        }
+        if (backdrop) {
+            backdrop.classList.remove('open');
+        }
+    }
+
+    // ===================== DUE DATE TIMER =====================
+
+    function startDueDateTimer() {
+        dueDateInterval = setInterval(function() {
+            var display = document.getElementById('writerview-timer');
+            if (display) {
+                display.textContent = formatTimeRemaining(config.dueDate);
+                var now = Math.floor(Date.now() / 1000);
+                if (config.dueDate < now) {
+                    display.classList.add('wv-overdue');
+                }
+            }
+        }, 1000);
+    }
+
+    function formatTimeRemaining(dueTimestamp) {
+        var now = Math.floor(Date.now() / 1000);
+        var diff = dueTimestamp - now;
+
+        if (diff <= 0) {
+            return config.strings.overdue;
+        }
+
+        var days = Math.floor(diff / 86400);
+        var hours = Math.floor((diff % 86400) / 3600);
+        var mins = Math.floor((diff % 3600) / 60);
+        var secs = diff % 60;
+
+        if (days > 0) {
+            return days + 'd ' + hours + 'h ' + mins + 'm';
+        }
+        if (hours > 0) {
+            return hours + 'h ' + mins + 'm ' + secs + 's';
+        }
+        return mins + 'm ' + secs + 's';
+    }
+
+    // ===================== UTILITIES =====================
 
     function formatStatus(status) {
         var statusMap = {
@@ -231,24 +351,36 @@ define([], function() {
         return statusMap[status] || status;
     }
 
+    function el(tag, className) {
+        var node = document.createElement(tag);
+        if (className) {
+            node.className = className;
+        }
+        return node;
+    }
+
     function chevronLeft() {
         return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-            '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>';
+            '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708' +
+            'l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>';
     }
 
     function chevronRight() {
         return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-            '<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>';
+            '<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1' +
+            '-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>';
     }
 
     function hideOriginalDescription() {
         ['.activity-description', '#intro'].forEach(function(sel) {
-            var el = document.querySelector(sel);
-            if (el) {
-                el.classList.add('writerview-hidden-original');
+            var node = document.querySelector(sel);
+            if (node) {
+                node.classList.add('writerview-hidden-original');
             }
         });
     }
+
+    // ===================== WORD COUNT =====================
 
     function startWordCount() {
         function updateCount() {

@@ -61,10 +61,6 @@ body.writerview-active #page-header .page-header-image {
     display: none !important;
 }
 
-body.writerview-active #page-header .breadcrumb {
-    margin-bottom: 0.25rem;
-}
-
 body.writerview-active .activity-header {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
@@ -115,9 +111,6 @@ body.writerview-active .mform .tox-tinymce {
     border: 1px solid #dadce0 !important;
     border-radius: 0 0 8px 8px !important;
     box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1);
-}
-
-body.writerview-active .mform .tox-tinymce {
     min-height: calc(100vh - 180px) !important;
     height: calc(100vh - 180px) !important;
 }
@@ -135,14 +128,13 @@ body.writerview-active .writerview-hidden-original {
     display: none !important;
 }
 
-/* ===== Form buttons ===== */
 body.writerview-active .mform #fgroup_id_buttonar {
     margin-top: 0.75rem;
     text-align: center;
 }
 
 /* ================================================================
-   SIDEBAR — Card-based design matching Cursive Analytics style
+   SIDEBAR
    ================================================================ */
 
 body.writerview-active .writerview-sidebar {
@@ -156,42 +148,31 @@ body.writerview-active .writerview-sidebar {
     position: sticky;
     top: 60px;
     border-inline-start: 1px solid #e0e0e0;
+    transition: width 0.2s ease, padding 0.2s ease;
 }
 
-/* --- Sidebar header (hidden, toggle is now an edge button) --- */
-body.writerview-active .wv-sidebar-header {
-    display: none;
-}
-
-body.writerview-active .wv-sidebar-title {
-    display: none;
-}
-
-/* --- Sidebar edge toggle button (Moodle block drawer style) --- */
-body.writerview-active .wv-toggle-btn {
-    position: absolute;
-    top: 12px;
-    inset-inline-start: -14px;
-    width: 28px;
-    height: 28px;
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 0;
-    color: #5f6368;
+/* --- Toggle bar --- */
+body.writerview-active .wv-toggle-bar {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #e8eaed;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
-    line-height: 0;
-    z-index: 3;
+    justify-content: flex-end;
+}
+
+body.writerview-active .wv-toggle-btn {
+    background: none;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #5f6368;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
 }
 
 body.writerview-active .wv-toggle-btn:hover {
     background-color: #f1f3f4;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 body.writerview-active .wv-toggle-btn:focus-visible {
@@ -204,15 +185,55 @@ body.writerview-active .wv-sidebar-body {
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.5rem;
 }
 
-/* --- Card base --- */
+/* --- Collapsed state --- */
+body.writerview-active .writerview-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    border-inline-start: none;
+    overflow: hidden;
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body {
+    display: none;
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-toggle-bar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    padding: 0.5rem;
+    z-index: 3;
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn {
+    background: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+}
+
+body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn:hover {
+    background: #1557b0;
+}
+
+body.writerview-active .mform:has(.writerview-sidebar.collapsed) {
+    grid-template-columns: 1fr 0px;
+}
+
+/* ================================================================
+   CARDS
+   ================================================================ */
+
 body.writerview-active .wv-card {
     background: #fff;
     border: 1px solid #e8eaed;
     border-radius: 10px;
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
 }
 
 body.writerview-active .wv-card-label {
@@ -221,30 +242,21 @@ body.writerview-active .wv-card-label {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #80868b;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.3rem;
 }
 
 body.writerview-active .wv-card-body {
     font-size: 0.85rem;
-    line-height: 1.55;
+    line-height: 1.5;
     color: #3c4043;
 }
 
-/* --- Word count card — prominent --- */
+/* --- Word count card --- */
 body.writerview-active .wv-wordcount-card {
     text-align: center;
-    padding: 1rem;
+    padding: 0.75rem;
     border-color: #d2e3fc;
     background: linear-gradient(135deg, #f8fbff 0%, #fff 100%);
-}
-
-body.writerview-active .wv-wordcount-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #80868b;
-    margin-bottom: 0.25rem;
 }
 
 body.writerview-active .wv-wordcount-value {
@@ -254,7 +266,28 @@ body.writerview-active .wv-wordcount-value {
     line-height: 1.1;
 }
 
-/* --- Status card --- */
+/* --- Due date card --- */
+body.writerview-active .wv-duedate-card {
+    padding: 0.75rem 1rem;
+}
+
+body.writerview-active .wv-duedate-date {
+    font-size: 0.85rem;
+    color: #3c4043;
+    margin-bottom: 0.2rem;
+}
+
+body.writerview-active .wv-duedate-timer {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e37400;
+}
+
+body.writerview-active .wv-duedate-timer.wv-overdue {
+    color: #c5221f;
+}
+
+/* --- Status badge --- */
 body.writerview-active .wv-status-badge {
     display: inline-block;
     padding: 3px 10px;
@@ -284,92 +317,132 @@ body.writerview-active .wv-status-reopened {
     color: #1a73e8;
 }
 
-/* --- Rubric card --- */
-body.writerview-active .wv-rubric-card {
-    padding: 0.75rem 1rem;
-}
-
-body.writerview-active .wv-rubric-header {
+/* --- Collapsible card --- */
+body.writerview-active .wv-collapsible-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-body.writerview-active .wv-rubric-toggle {
+body.writerview-active .wv-section-toggle {
     background: none;
     border: 1px solid #dadce0;
     border-radius: 6px;
-    padding: 2px 10px;
-    font-size: 0.7rem;
+    padding: 1px 8px;
+    font-size: 0.65rem;
     font-weight: 600;
     color: #5f6368;
     cursor: pointer;
     transition: background-color 0.15s ease;
+    flex-shrink: 0;
 }
 
-body.writerview-active .wv-rubric-toggle:hover {
+body.writerview-active .wv-section-toggle:hover {
     background-color: #f1f3f4;
 }
 
-body.writerview-active .wv-rubric-body {
-    margin-top: 0.75rem;
-    overflow-x: auto;
+body.writerview-active .wv-collapsible-body {
+    margin-top: 0.4rem;
 }
 
-body.writerview-active .wv-rubric-body table {
-    font-size: 0.7rem;
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
+/* --- Rubric trigger card --- */
+body.writerview-active .wv-rubric-trigger {
+    padding: 0.6rem 1rem;
 }
 
-body.writerview-active .wv-rubric-body .gradingform_rubric .criterion .description,
-body.writerview-active .wv-rubric-body .gradingform_rubric .criterion .level {
-    font-size: 0.7rem;
-    padding: 6px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    vertical-align: top;
-}
-
-/* --- Collapsed state --- */
-body.writerview-active .writerview-sidebar.collapsed {
-    width: 0;
-    padding: 0;
-    border-inline-start: none;
-    overflow: visible;
-}
-
-body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body {
-    display: none;
-}
-
-body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn {
-    inset-inline-start: -38px;
-    top: 12px;
-    width: 32px;
-    height: 32px;
-    background: #1a73e8;
-    color: #fff;
-    border: none;
-    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
-}
-
-body.writerview-active .writerview-sidebar.collapsed .wv-toggle-btn:hover {
-    background: #1557b0;
-    color: #fff;
-}
-
-body.writerview-active .mform:has(.writerview-sidebar.collapsed) {
-    grid-template-columns: 1fr 0px;
-}
-
-/* --- Constrain media --- */
+/* --- Constrain media in cards --- */
 body.writerview-active .wv-card-body img,
 body.writerview-active .wv-card-body video,
 body.writerview-active .wv-card-body iframe {
     max-width: 100%;
     height: auto;
+}
+
+/* ================================================================
+   RUBRIC SLIDE-OVER PANEL (Approach B)
+   ================================================================ */
+
+body.writerview-active .wv-rubric-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1040;
+}
+
+body.writerview-active .wv-rubric-backdrop.open {
+    display: block;
+}
+
+body.writerview-active .wv-rubric-panel {
+    position: fixed;
+    top: 0;
+    right: -620px;
+    width: 600px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.writerview-active .wv-rubric-panel.open {
+    right: 0;
+}
+
+body.writerview-active .wv-rubric-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+body.writerview-active .wv-rubric-panel-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+body.writerview-active .wv-rubric-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #5f6368;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;
+    line-height: 1;
+    transition: background-color 0.15s ease;
+}
+
+body.writerview-active .wv-rubric-close:hover {
+    background-color: #f1f3f4;
+}
+
+body.writerview-active .wv-rubric-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+}
+
+body.writerview-active .wv-rubric-panel-body table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+body.writerview-active .wv-rubric-panel-body .gradingform_rubric .criterion .description,
+body.writerview-active .wv-rubric-panel-body .gradingform_rubric .criterion .level {
+    padding: 8px;
+    vertical-align: top;
+    font-size: 0.85rem;
 }
 
 /* ===== TinyMCE fullscreen mode ===== */
@@ -388,14 +461,6 @@ body.writerview-active.tox-fullscreen .tox-tinymce {
     box-shadow: none !important;
 }
 
-body.writerview-active.tox-fullscreen .mform .fitem .col-md-3 {
-    display: none !important;
-}
-
-body.writerview-active.tox-fullscreen #id_submissionheader > .d-flex.align-items-center {
-    display: none !important;
-}
-
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
     body.writerview-active .mform {
@@ -411,5 +476,10 @@ body.writerview-active.tox-fullscreen #id_submissionheader > .d-flex.align-items
         position: static;
         border-inline-start: none;
         border-top: 1px solid #e0e0e0;
+    }
+
+    body.writerview-active .wv-rubric-panel {
+        width: 100%;
+        right: -100%;
     }
 }

@@ -68,7 +68,8 @@ class hook_callbacks {
         // Gather data with a single combined query.
         $cm = get_coursemodule_from_id('assign', $cmid, 0, false, MUST_EXIST);
 
-        $sql = "SELECT a.id, a.name, a.intro, a.introformat, s.status AS submissionstatus
+        $sql = "SELECT a.id, a.name, a.intro, a.introformat, a.duedate,
+                       s.status AS submissionstatus
                   FROM {assign} a
              LEFT JOIN {assign_submission} s ON s.assignment = a.id
                        AND s.userid = :userid AND s.latest = 1
@@ -104,6 +105,7 @@ class hook_callbacks {
             'description' => $description,
             'assignmentName' => format_string($record->name, true, ['context' => $context]),
             'submissionStatus' => $statustext,
+            'dueDate' => (int) $record->duedate,
             'rubricHtml' => $rubrichtml,
             'strings' => [
                 'studentinfo' => get_string('sidebar_studentinfo', 'local_writerview'),
@@ -111,7 +113,11 @@ class hook_callbacks {
                 'status' => get_string('sidebar_status', 'local_writerview'),
                 'wordcount' => get_string('sidebar_wordcount', 'local_writerview'),
                 'rubric' => get_string('sidebar_rubric', 'local_writerview'),
+                'duedate' => get_string('sidebar_duedate', 'local_writerview'),
+                'overdue' => get_string('sidebar_overdue', 'local_writerview'),
                 'togglesidebar' => get_string('sidebar_toggle', 'local_writerview'),
+                'hidedetails' => get_string('sidebar_hidedetails', 'local_writerview'),
+                'showdetails' => get_string('sidebar_showdetails', 'local_writerview'),
                 'arialabel' => get_string('sidebar_arialabel', 'local_writerview'),
                 'show' => get_string('sidebar_show', 'local_writerview'),
                 'hide' => get_string('sidebar_hide', 'local_writerview'),
