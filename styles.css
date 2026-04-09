@@ -74,6 +74,20 @@ body.writerview-active .activity-header .completion-info {
     display: none !important;
 }
 
+/* Hide the due date banner above the editor (shown in sidebar instead) */
+body.writerview-active .activity-header .activity-dates,
+body.writerview-active .activity-header [data-region="activity-dates"],
+body.writerview-active .editsubmissionform ~ .submissionstatustable,
+body.writerview-active .generaltable.submissionstatustable {
+    display: none !important;
+}
+
+/* Also hide the Moodle-rendered due date info bar */
+body.writerview-active .box.generalbox.boxaligncenter.submissionstatustable,
+body.writerview-active .path-mod-assign .activity-information + .box {
+    display: none !important;
+}
+
 /* ===== Layout — CSS Grid ===== */
 body.writerview-active .mform {
     display: grid !important;

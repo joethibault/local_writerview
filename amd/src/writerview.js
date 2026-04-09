@@ -377,6 +377,24 @@ define([], function() {
                 node.classList.add('writerview-hidden-original');
             }
         });
+
+        // Hide the due date bar if we show it in the sidebar.
+        if (config.dueDate > 0) {
+            var dateNodes = document.querySelectorAll(
+                '.activity-dates, [data-region="activity-dates"]'
+            );
+            dateNodes.forEach(function(node) {
+                node.classList.add('writerview-hidden-original');
+            });
+
+            // Also check for the inline "Due:" text in the activity header.
+            var headers = document.querySelectorAll('.activity-header div, .activity-header p');
+            headers.forEach(function(node) {
+                if (node.textContent && node.textContent.trim().indexOf('Due:') === 0) {
+                    node.classList.add('writerview-hidden-original');
+                }
+            });
+        }
     }
 
     // ===================== WORD COUNT =====================
