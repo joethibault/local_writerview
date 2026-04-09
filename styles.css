@@ -68,6 +68,7 @@ body.writerview-active #page-header {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
     margin-bottom: 0 !important;
+    /* padding-left set dynamically by JS to align with editor left edge */
 }
 
 body.writerview-active #page-header .page-context-header {
