@@ -116,6 +116,12 @@ define([], function() {
             bodyEl.appendChild(buildDueDateCard());
         }
 
+        // Time limit card — mirrors Moodle's block drawer timer if present.
+        var moodleTimer = document.querySelector('[id^="mod_assign-timer-"]');
+        if (moodleTimer) {
+            bodyEl.appendChild(buildTimeLimitCard(moodleTimer));
+        }
+
         // Static sections (always visible).
         var statusCard = buildCard(config.strings.status);
         statusCard.appendChild(buildStatusContent());
@@ -173,6 +179,29 @@ define([], function() {
         card.appendChild(label);
         card.appendChild(dateStr);
         card.appendChild(timer);
+        return card;
+    }
+
+    function buildTimeLimitCard(moodleTimerEl) {
+        var card = el('div', 'wv-card wv-timelimit-card');
+        var label = el('div', 'wv-card-label');
+        label.textContent = config.strings.timelimit;
+
+        var display = el('div', 'wv-timelimit-value');
+        display.id = 'writerview-timelimit';
+        display.textContent = moodleTimerEl.textContent.trim() || '—';
+
+        card.appendChild(label);
+        card.appendChild(display);
+
+        // Poll the Moodle timer element every second and mirror its text.
+        setInterval(function() {
+            var text = moodleTimerEl.textContent.trim();
+            if (text && display.textContent !== text) {
+                display.textContent = text;
+            }
+        }, 1000);
+
         return card;
     }
 

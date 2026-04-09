@@ -115,6 +115,7 @@ class hook_callbacks {
                 'rubric' => get_string('sidebar_rubric', 'local_writerview'),
                 'duedate' => get_string('sidebar_duedate', 'local_writerview'),
                 'overdue' => get_string('sidebar_overdue', 'local_writerview'),
+                'timelimit' => get_string('sidebar_timelimit', 'local_writerview'),
                 'togglesidebar' => get_string('sidebar_toggle', 'local_writerview'),
                 'hidedetails' => get_string('sidebar_hidedetails', 'local_writerview'),
                 'showdetails' => get_string('sidebar_showdetails', 'local_writerview'),

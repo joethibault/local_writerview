@@ -35,6 +35,7 @@ $string['sidebar_wordcount'] = 'Word Count';
 $string['sidebar_rubric'] = 'Rubric';
 $string['sidebar_duedate'] = 'Due Date';
 $string['sidebar_overdue'] = 'Overdue';
+$string['sidebar_timelimit'] = 'Time Limit';
 $string['sidebar_toggle'] = 'Toggle sidebar';
 $string['sidebar_hidedetails'] = 'Hide details';
 $string['sidebar_showdetails'] = 'Show details';
