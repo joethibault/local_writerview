@@ -73,14 +73,13 @@ define([], function() {
             }
         });
 
+        // Place toggle button above the editor so it's always accessible.
         var sidebarResult = buildSidebar();
-        form.appendChild(sidebarResult.sidebar);
-
-        // Place toggle button outside the sidebar so it stays visible when collapsed.
         var toggleWrapper = el('div', 'wv-toggle-wrapper writerview-editor-child');
         toggleWrapper.appendChild(sidebarResult.toggleBtn);
-        // Insert before the sidebar (which is the last child).
-        form.insertBefore(toggleWrapper, sidebarResult.sidebar);
+        form.insertBefore(toggleWrapper, form.firstChild);
+
+        form.appendChild(sidebarResult.sidebar);
 
         hideOriginalDescription();
     }
@@ -123,12 +122,6 @@ define([], function() {
             config.strings.status,
             buildStatusContent(),
             true
-        ));
-
-        bodyEl.appendChild(buildCollapsibleCard(
-            config.strings.studentinfo,
-            buildTextContent(config.studentName),
-            false
         ));
 
         bodyEl.appendChild(buildCollapsibleCard(
