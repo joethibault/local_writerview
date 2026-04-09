@@ -147,14 +147,12 @@ body.writerview-active .writerview-sidebar {
     background-color: #fff;
     position: sticky;
     top: 60px;
-    border-inline-start: 1px solid #e0e0e0;
     transition: width 0.2s ease, padding 0.2s ease;
 }
 
 /* --- Toggle bar (inside sidebar) --- */
 body.writerview-active .wv-toggle-bar {
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid #e8eaed;
     display: flex;
     justify-content: flex-end;
     position: sticky;
@@ -196,7 +194,6 @@ body.writerview-active .wv-sidebar-body {
 body.writerview-active .writerview-sidebar.collapsed {
     width: 120px;
     overflow: visible;
-    border-inline-start: 1px solid #e0e0e0;
 }
 
 body.writerview-active .writerview-sidebar.collapsed .wv-sidebar-body {
