@@ -100,7 +100,7 @@ define([], function() {
         }
 
         var sidebarBody = document.querySelector('.wv-sidebar-body');
-        var toggleBar = document.querySelector('.wv-toggle-bar');
+        var headerInner = document.querySelector('#page-header .w-100');
 
         function resize() {
             var rect = tinyEl.getBoundingClientRect();
@@ -110,12 +110,20 @@ define([], function() {
                 tinyEl.style.minHeight = available + 'px';
             }
 
-            // Match sidebar body height to editor.
+            // Match sidebar body bottom to editor bottom.
             if (sidebarBody) {
-                var toggleH = toggleBar ? toggleBar.offsetHeight : 0;
-                var sidebarTop = rect.top - toggleH;
-                var sidebarAvailable = window.innerHeight - rect.top - 8;
-                sidebarBody.style.maxHeight = sidebarAvailable + 'px';
+                var sbRect = sidebarBody.getBoundingClientRect();
+                var editorBottom = rect.top + available;
+                var sidebarAvailable = editorBottom - sbRect.top;
+                if (sidebarAvailable > 100) {
+                    sidebarBody.style.maxHeight = sidebarAvailable + 'px';
+                }
+            }
+
+            // Align header to editor left edge.
+            if (headerInner) {
+                headerInner.style.paddingLeft = rect.left + 'px';
+                headerInner.style.paddingRight = '0';
             }
         }
 
