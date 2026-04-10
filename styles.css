@@ -68,7 +68,11 @@ body.writerview-active #page-header {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
     margin-bottom: 0 !important;
-    /* padding-left set dynamically by JS to align with editor left edge */
+}
+
+body.writerview-active #page-header .w-100 {
+    max-width: 816px;
+    /* margin-left set dynamically by JS to align with editor */
 }
 
 body.writerview-active #page-header .page-context-header {
@@ -173,13 +177,12 @@ body.writerview-active .writerview-sidebar {
     grid-column: 2;
     grid-row: 1 / -1;
     width: 340px;
-    max-height: calc(100vh - 60px);
+    height: calc(100vh - 60px);
     overflow: hidden;
     padding: 0;
     background-color: #fff;
     position: sticky;
     top: 60px;
-    transition: width 0.2s ease, padding 0.2s ease;
     display: flex;
     flex-direction: column;
 }

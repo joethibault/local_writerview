@@ -99,7 +99,7 @@ define([], function() {
             return;
         }
 
-        var header = document.getElementById('page-header');
+        var headerInner = document.querySelector('#page-header .w-100');
 
         function resize() {
             var rect = tinyEl.getBoundingClientRect();
@@ -109,9 +109,9 @@ define([], function() {
                 tinyEl.style.minHeight = available + 'px';
             }
 
-            // Align page header to editor's left edge.
-            if (header) {
-                header.style.paddingLeft = rect.left + 'px';
+            // Align page header content to editor's left edge.
+            if (headerInner) {
+                headerInner.style.marginLeft = rect.left + 'px';
             }
         }
 
