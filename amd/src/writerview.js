@@ -128,7 +128,8 @@ define([], function() {
             }
         }
 
-        resize();
+        // Delay initial resize to let TinyMCE finish centering via margin: auto.
+        setTimeout(resize, 500);
         window.addEventListener('resize', resize);
     }
 
