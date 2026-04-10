@@ -122,8 +122,9 @@ define([], function() {
 
             // Align header to editor left edge.
             if (headerInner) {
-                headerInner.style.paddingLeft = rect.left + 'px';
+                headerInner.style.paddingLeft = '0';
                 headerInner.style.paddingRight = '0';
+                headerInner.style.marginLeft = rect.left + 'px';
             }
         }
 
