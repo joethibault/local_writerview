@@ -1,10 +1,10 @@
 # Writer View for Moodle
 
-A local plugin that transforms the Moodle assignment submission page into a focused writing experience with a Google Docs-style layout.
+A local plugin that transforms the Moodle assignment submission page into a focused writing experience with a Google Docs-ish layout that observes the contraints of Moodle core.
 
 ## What it does
 
-When enabled, Writer View replaces the default assignment submission page with:
+When enabled, Writer View replaces the default assignment submission page that centers focus on the writing canvas without hiding the important instructions or informaiton from the student:
 
 - **Maximized text editor** (816px, centered, Google Docs-style)
 - **Sidebar** with assignment details: word count, due date, time limit, submission status, assignment description, activity instructions, and rubric
@@ -22,21 +22,6 @@ When enabled, Writer View replaces the default assignment submission page with:
 1. Copy the `writerview` folder to `local/writerview` in your Moodle installation
 2. Visit **Site Administration > Notifications** to install the plugin
 3. Purge caches: **Site Administration > Development > Purge all caches**
-
-### Docker development
-
-```bash
-# Volume-mount into your Moodle Docker container
-# In docker-compose or local.yml:
-volumes:
-  - "/path/to/local_writerview:/var/www/html/local/writerview"
-
-# Install
-docker exec -it <container> php admin/cli/upgrade.php --non-interactive
-
-# Purge caches after changes
-docker exec -it <container> php admin/cli/purge_caches.php
-```
 
 ## How to enable
 
