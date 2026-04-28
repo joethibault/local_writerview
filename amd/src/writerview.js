@@ -41,6 +41,7 @@ define([], function() {
         document.body.classList.add('writerview-active');
         waitForEditor(function() {
             rearrangeDOM();
+            installDeclarationField();
             fitEditorToViewport();
             startWordCount();
             if (config.dueDate > 0) {
@@ -133,7 +134,7 @@ define([], function() {
         sidebar.setAttribute('aria-label', config.strings.arialabel);
 
         var toggleBtn = document.createElement('button');
-        toggleBtn.className = 'wv-toggle-btn';
+        toggleBtn.className = 'wv-toggle-btn btn btn-secondary btn-sm';
         toggleBtn.type = 'button';
         toggleBtn.textContent = config.strings.hidedetails;
         toggleBtn.setAttribute('aria-expanded', 'true');
@@ -378,6 +379,182 @@ define([], function() {
         }
         if (backdrop) {
             backdrop.classList.remove('open');
+        }
+    }
+
+    // ===================== ASSIGNMENT DECLARATION =====================
+
+    function installDeclarationField() {
+        var checkbox = document.getElementById('id_submissionstatement');
+        var sidebarBody = document.querySelector('.wv-sidebar-body');
+        if (!checkbox || !sidebarBody) {
+            return;
+        }
+
+        var stmtLabel = document.querySelector('label[for="id_submissionstatement"]');
+        var stmtHtml = stmtLabel ? stmtLabel.innerHTML : '';
+
+        // Find the nearest form-row wrapper to hide. Moodle's wrapper ID/class varies
+        // across versions (fitem_id_submissionstatement, .fitem, .form-group, etc.),
+        // so walk up the DOM rather than rely on a single selector.
+        var fitem = checkbox.closest('[id^="fitem_id_submission"]')
+                 || checkbox.closest('.fitem')
+                 || checkbox.closest('.form-group')
+                 || checkbox.parentElement;
+        if (fitem) {
+            fitem.classList.add('writerview-hidden-original');
+        }
+
+        var card = el('div', 'wv-card wv-decl-card');
+
+        // Move the real checkbox into the card. Sidebar is inside <form>, so POST is unaffected.
+        checkbox.classList.add('wv-decl-checkbox');
+        checkbox.setAttribute('aria-label', config.strings.decltitle);
+        card.appendChild(checkbox);
+
+        // Title doubles as the "view" trigger — clicking it re-opens the modal.
+        var titleBtn = el('button', 'wv-decl-title-btn');
+        titleBtn.type = 'button';
+        titleBtn.textContent = config.strings.decltitle;
+        card.appendChild(titleBtn);
+
+        sidebarBody.insertBefore(card, sidebarBody.firstChild);
+
+        // Modal.
+        var backdrop = el('div', 'wv-decl-backdrop');
+        backdrop.id = 'wv-decl-backdrop';
+
+        var modal = el('div', 'wv-decl-modal');
+        modal.id = 'wv-decl-modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'wv-decl-modal-title');
+
+        var header = el('div', 'wv-decl-modal-header');
+        var titleH = el('h3', 'wv-decl-modal-title');
+        titleH.id = 'wv-decl-modal-title';
+        titleH.textContent = config.strings.decltitle;
+        header.appendChild(titleH);
+
+        var bodyEl = el('div', 'wv-decl-modal-body');
+        bodyEl.innerHTML = stmtHtml;
+
+        var footer = el('div', 'wv-decl-modal-footer');
+        var cancelBtn = el('button', 'btn btn-secondary wv-decl-cancel');
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = config.strings.declcancel;
+
+        var agreeBtn = el('button', 'btn btn-primary wv-decl-agree');
+        agreeBtn.type = 'button';
+        agreeBtn.textContent = config.strings.declagree;
+
+        footer.appendChild(cancelBtn);
+        footer.appendChild(agreeBtn);
+
+        modal.appendChild(header);
+        modal.appendChild(bodyEl);
+        modal.appendChild(footer);
+
+        document.body.appendChild(backdrop);
+        document.body.appendChild(modal);
+
+        var storageKey = 'local_writerview_agreed_' + config.cmid + '_' + config.userId;
+
+        function readAgreed() {
+            try { return localStorage.getItem(storageKey) === '1'; } catch (e) { return false; }
+        }
+
+        function writeAgreed(v) {
+            try {
+                if (v) {
+                    localStorage.setItem(storageKey, '1');
+                } else {
+                    localStorage.removeItem(storageKey);
+                }
+            } catch (e) { /* private browsing or quota — non-fatal */ }
+        }
+
+        function openModal() {
+            modal.classList.add('open');
+            backdrop.classList.add('open');
+            document.body.classList.add('wv-decl-modal-open');
+        }
+
+        function closeModal() {
+            modal.classList.remove('open');
+            backdrop.classList.remove('open');
+            document.body.classList.remove('wv-decl-modal-open');
+        }
+
+        function reflectState() {
+            if (checkbox.checked) {
+                card.classList.add('wv-decl-checked');
+                card.classList.remove('wv-decl-unchecked');
+                writeAgreed(true);
+                closeModal();
+            } else {
+                card.classList.add('wv-decl-unchecked');
+                card.classList.remove('wv-decl-checked');
+                writeAgreed(false);
+                openModal();
+            }
+        }
+
+        checkbox.addEventListener('change', reflectState);
+
+        agreeBtn.addEventListener('click', function() {
+            if (!checkbox.checked) {
+                checkbox.checked = true;
+                checkbox.dispatchEvent(new Event('change', {bubbles: true}));
+            } else {
+                closeModal();
+            }
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            // Close without agreeing; checkbox stays in current state.
+            closeModal();
+        });
+
+        backdrop.addEventListener('click', function() {
+            closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('open')) {
+                closeModal();
+            }
+        });
+
+        titleBtn.addEventListener('click', function() {
+            // Title acts as the "view" trigger — re-open the modal regardless of state.
+            openModal();
+        });
+
+        // Block form submit if unchecked: pop the modal instead of letting it slip through.
+        var form = checkbox.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!checkbox.checked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal();
+                }
+            }, true);
+        }
+
+        // Initial state. If localStorage says agreed, sync the checkbox first.
+        if (readAgreed() && !checkbox.checked) {
+            checkbox.checked = true;
+        }
+
+        // Drive UI from the actual checkbox state (covers both branches).
+        if (checkbox.checked) {
+            card.classList.add('wv-decl-checked');
+            writeAgreed(true);
+        } else {
+            card.classList.add('wv-decl-unchecked');
+            openModal();
         }
     }
 

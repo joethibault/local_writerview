@@ -87,6 +87,8 @@ class hook_callbacks {
             ['context' => $context, 'noclean' => false]
         );
 
+        // Match ASSIGN_SUBMISSION_STATUS_NEW from mod/assign/locallib.php — kept as a literal
+        // so we don't have to load mod_assign's locallib on every page just for one constant.
         $statustext = $record->submissionstatus ?: 'new';
 
         // Activity instructions (separate from description, shown only on submission page).
@@ -112,6 +114,7 @@ class hook_callbacks {
         // All user-facing strings passed via get_string().
         $jsconfig = [
             'cmid' => $cmid,
+            'userId' => (int) $USER->id,
             'studentName' => fullname($USER),
             'description' => $description,
             'instructions' => $instructions,
@@ -139,6 +142,10 @@ class hook_callbacks {
                 'statusdraft' => get_string('status_draft', 'local_writerview'),
                 'statussubmitted' => get_string('status_submitted', 'local_writerview'),
                 'statusreopened' => get_string('status_reopened', 'local_writerview'),
+                'decltitle' => get_string('submissionstatement', 'mod_assign'),
+                'declagree' => get_string('declaration_agree', 'local_writerview'),
+                'declcancel' => get_string('cancel'),
+                'declview' => get_string('view'),
             ],
         ];
 

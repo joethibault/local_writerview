@@ -92,6 +92,10 @@ local/writerview/
         └── local_writerview.php  # Language strings
 ```
 
+## Reporting issues
+
+Bugs and feature requests: https://github.com/joethibault/moodle-local_writerview/issues
+
 ## License
 
 GNU GPL v3 or later — https://www.gnu.org/copyleft/gpl.html

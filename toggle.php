@@ -28,12 +28,11 @@ $cmid = required_param('cmid', PARAM_INT);
 
 $PAGE->set_url(new moodle_url('/local/writerview/toggle.php', ['cmid' => $cmid]));
 
-require_sesskey();
-
 $cm = get_coursemodule_from_id('assign', $cmid, 0, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
 
 require_login($cm->course, false, $cm);
+require_sesskey();
 require_capability('local/writerview:manage', $context);
 
 $current = $DB->get_record('local_writerview_config', ['cmid' => $cmid]);

@@ -48,5 +48,6 @@ $string['status_draft'] = 'Draft';
 $string['status_submitted'] = 'Submitted';
 $string['status_reopened'] = 'Reopened';
 $string['wordcount_label'] = 'Words: {$a}';
+$string['declaration_agree'] = 'I agree';
 $string['cachedef_config'] = 'Writer View per-assignment configuration cache';
-$string['privacy:metadata'] = 'The Writer View plugin does not store any personal data. It stores per-assignment configuration only.';
+$string['privacy:metadata'] = 'The Writer View plugin does not store any personal data on the server. It stores per-assignment configuration (no user data) in the database, and uses the browser\'s localStorage to remember whether a student has acknowledged the assignment submission statement on this device. The localStorage entry contains only a boolean flag and is keyed by course module ID and user ID. No data is transmitted to any third party.';

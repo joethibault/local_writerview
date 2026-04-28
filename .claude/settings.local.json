@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/src/writerview.js\")",
+      "Bash(php -l \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/classes/hook_callbacks.php\")",
+      "Bash(php -l \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/lang/en/local_writerview.php\")",
+      "Bash(php -l \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/version.php\")",
+      "Bash(python \"C:/Users/josep/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/3138f073-a97a-4ede-b9a5-a702fdbe960c/e142b443-f242-4533-9aa3-96cd08f92abf/skills/moodle-plugin-release-readiness/audit_strings.py\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview\")",
+      "Read(//c/Users/josep/OneDrive/Desktop/Code/Moodle/_/moodle/**)",
+      "Bash(npx --yes --quiet terser --version)",
+      "Bash(npx --yes --quiet terser \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/src/writerview.js\" --compress --mangle --comments=/Moodle)",
+      "Bash(GPL/ --output \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/build/writerview.min.js\")",
+      "Bash(npx --yes --quiet terser \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/src/writerview.js\" --compress --mangle --output \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/build/writerview.min.js\")",
+      "Bash(cp \"C:/Users/josep/Downloads/Untitled presentation \\(3\\).svg\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/pix/icon.svg\")",
+      "Bash(cp \"C:/Users/josep/Downloads/Untitled presentation \\(3\\).png\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/pix/icon.png\")"
+    ]
+  }
+}

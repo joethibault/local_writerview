@@ -16,6 +16,13 @@
  *
  * Writer View layout - only active when body.writerview-active is present.
  *
+ * Note on !important: this file uses !important throughout, specifically to
+ * override Boost theme defaults that would otherwise win the cascade on the
+ * assignment submission edit page (page-specific selectors and grid columns
+ * baked into Boost's compiled CSS). It is not used to override styles within
+ * this plugin. Removing !important here results in layout collapse against
+ * Boost-derived themes.
+ *
  * @package    local_writerview
  * @copyright  2026 Cursive Technology
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -208,26 +215,8 @@ body.writerview-active .wv-toggle-bar {
     border-bottom: 1px solid #f0f0f0;
 }
 
-body.writerview-active .wv-toggle-btn {
-    background: none;
-    border: 1px solid #dadce0;
-    border-radius: 6px;
-    padding: 3px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #5f6368;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-body.writerview-active .wv-toggle-btn:hover {
-    background-color: #f1f3f4;
-}
-
-body.writerview-active .wv-toggle-btn:focus-visible {
-    outline: 2px solid #1a73e8;
-    outline-offset: 2px;
-}
+/* .wv-toggle-btn relies on Bootstrap's btn btn-secondary btn-sm for visual styling
+   so it matches the form's Save / Cancel buttons (grey instead of primary blue). */
 
 /* --- Sidebar body --- */
 body.writerview-active .writerview-sidebar .wv-sidebar-body {
@@ -493,6 +482,143 @@ body.writerview-active .wv-rubric-panel-body .gradingform_rubric .criterion .lev
     padding: 8px;
     vertical-align: top;
     font-size: 0.85rem;
+}
+
+/* ================================================================
+   ASSIGNMENT DECLARATION (submission statement)
+   ================================================================ */
+
+/* --- Sidebar minimized card --- */
+body.writerview-active .wv-decl-card {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.85rem;
+}
+
+body.writerview-active .wv-decl-card.wv-decl-unchecked {
+    border-color: #fce8e6;
+    background: linear-gradient(135deg, #fef5f3 0%, #fff 100%);
+}
+
+body.writerview-active .wv-decl-card.wv-decl-checked {
+    border-color: #ceead6;
+    background: linear-gradient(135deg, #f3faf5 0%, #fff 100%);
+}
+
+body.writerview-active .wv-decl-checkbox {
+    margin: 0 !important;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+body.writerview-active .wv-decl-title-btn {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1a73e8;
+    cursor: pointer;
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+body.writerview-active .wv-decl-title-btn:hover {
+    color: #1557b0;
+}
+
+body.writerview-active .wv-decl-title-btn:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+body.writerview-active .wv-decl-card.wv-decl-checked .wv-decl-title-btn {
+    color: #137333;
+}
+
+body.writerview-active .wv-decl-card.wv-decl-checked .wv-decl-title-btn:hover {
+    color: #0d5524;
+}
+
+/* --- Modal overlay --- */
+body.writerview-active .wv-decl-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1060;
+}
+
+body.writerview-active .wv-decl-backdrop.open {
+    display: block;
+}
+
+body.writerview-active .wv-decl-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(640px, 92vw);
+    max-height: 80vh;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    z-index: 1061;
+    flex-direction: column;
+}
+
+body.writerview-active .wv-decl-modal.open {
+    display: flex;
+}
+
+body.writerview-active .wv-decl-modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e8eaed;
+    flex-shrink: 0;
+}
+
+body.writerview-active .wv-decl-modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+body.writerview-active .wv-decl-modal-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #3c4043;
+}
+
+body.writerview-active .wv-decl-modal-body img,
+body.writerview-active .wv-decl-modal-body video,
+body.writerview-active .wv-decl-modal-body iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+body.writerview-active .wv-decl-modal-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid #e8eaed;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 /* ===== TinyMCE fullscreen mode ===== */
