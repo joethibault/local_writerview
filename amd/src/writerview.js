@@ -25,9 +25,12 @@ define([], function() {
     'use strict';
 
     var config = null;
-    var wordCountInterval = null;
-    var dueDateInterval = null;
 
+    /**
+     * Entry point. Stores config and schedules setup() once the DOM is ready.
+     *
+     * @param {object} cfg Configuration payload from PHP via js_call_amd.
+     */
     function init(cfg) {
         config = cfg;
         if (document.readyState === 'loading') {
@@ -37,6 +40,10 @@ define([], function() {
         }
     }
 
+    /**
+     * Activate writer view: tag the body, wait for the editor, then rearrange
+     * the DOM and start the periodic timers/observers.
+     */
     function setup() {
         document.body.classList.add('writerview-active');
         waitForEditor(function() {
@@ -50,6 +57,12 @@ define([], function() {
         });
     }
 
+    /**
+     * Poll for the TinyMCE editor element and run callback once it appears.
+     * Gives up silently after ~10 seconds.
+     *
+     * @param {Function} callback Invoked once the editor is detected.
+     */
     function waitForEditor(callback) {
         var attempts = 0;
         var interval = setInterval(function() {
@@ -63,6 +76,11 @@ define([], function() {
         }, 100);
     }
 
+    /**
+     * Tag form children for grid placement, build and append the sidebar,
+     * relocate Save/Cancel into the sidebar's toggle bar, hide redundant
+     * Moodle-rendered description blocks.
+     */
     function rearrangeDOM() {
         var form = document.querySelector('#page-content div[role="main"] .mform');
         if (!form) {
@@ -94,6 +112,10 @@ define([], function() {
 
     // ===================== FIT EDITOR =====================
 
+    /**
+     * Resize the TinyMCE editor and the sidebar body to fit the viewport,
+     * preserving a non-scrolling page layout. Re-runs on window resize.
+     */
     function fitEditorToViewport() {
         var tinyEl = document.querySelector('.tox-tinymce');
         if (!tinyEl) {
@@ -102,6 +124,9 @@ define([], function() {
 
         var sidebarBody = document.querySelector('.wv-sidebar-body');
 
+        /**
+         * Recompute heights for the editor and sidebar based on viewport.
+         */
         function resize() {
             var rect = tinyEl.getBoundingClientRect();
             var available = window.innerHeight - rect.top - 8;
@@ -127,6 +152,11 @@ define([], function() {
 
     // ===================== SIDEBAR =====================
 
+    /**
+     * Build the right-side sidebar element with toggle bar and content cards.
+     *
+     * @return {{sidebar: HTMLElement, toggleBar: HTMLElement}} Sidebar wrapper and toggle bar.
+     */
     function buildSidebar() {
         var sidebar = document.createElement('div');
         sidebar.className = 'writerview-sidebar';
@@ -204,6 +234,11 @@ define([], function() {
 
     // ===================== CARDS =====================
 
+    /**
+     * Build the live word-count card.
+     *
+     * @return {HTMLElement} Card element.
+     */
     function buildWordCountCard() {
         var card = el('div', 'wv-card wv-wordcount-card');
         var label = el('div', 'wv-card-label');
@@ -217,6 +252,11 @@ define([], function() {
         return card;
     }
 
+    /**
+     * Build the due-date countdown card.
+     *
+     * @return {HTMLElement} Card element.
+     */
     function buildDueDateCard() {
         var card = el('div', 'wv-card wv-duedate-card');
         var label = el('div', 'wv-card-label');
@@ -233,6 +273,12 @@ define([], function() {
         return card;
     }
 
+    /**
+     * Build the time-limit card and start polling Moodle's timer block.
+     *
+     * @param {HTMLElement} moodleTimerEl The original Moodle timer DOM node.
+     * @return {HTMLElement} Card element.
+     */
     function buildTimeLimitCard(moodleTimerEl) {
         var card = el('div', 'wv-card wv-timelimit-card');
         var label = el('div', 'wv-card-label');
@@ -257,6 +303,12 @@ define([], function() {
         return card;
     }
 
+    /**
+     * Build a generic titled card with no body content.
+     *
+     * @param {string} title Title text for the card label.
+     * @return {HTMLElement} Card element.
+     */
     function buildCard(title) {
         var card = el('div', 'wv-card');
         var label = el('div', 'wv-card-label');
@@ -265,55 +317,24 @@ define([], function() {
         return card;
     }
 
-    function buildCollapsibleCard(title, contentEl, startOpen) {
-        var card = el('div', 'wv-card wv-collapsible');
-        var header = el('div', 'wv-collapsible-header');
-
-        var label = el('div', 'wv-card-label');
-        label.textContent = title;
-        label.style.marginBottom = '0';
-
-        var toggle = el('button', 'wv-section-toggle');
-        toggle.type = 'button';
-        toggle.textContent = startOpen ? config.strings.hide : config.strings.show;
-
-        var body = el('div', 'wv-collapsible-body');
-        body.appendChild(contentEl);
-        body.style.display = startOpen ? 'block' : 'none';
-
-        toggle.addEventListener('click', function() {
-            var visible = body.style.display !== 'none';
-            body.style.display = visible ? 'none' : 'block';
-            toggle.textContent = visible ? config.strings.show : config.strings.hide;
-        });
-
-        header.appendChild(label);
-        header.appendChild(toggle);
-        card.appendChild(header);
-        card.appendChild(body);
-        return card;
-    }
-
+    /**
+     * Build the submission-status badge for the status card.
+     *
+     * @return {HTMLElement} Badge span.
+     */
     function buildStatusContent() {
         var badge = el('span', 'wv-status-badge wv-status-' + config.submissionStatus);
         badge.textContent = formatStatus(config.submissionStatus);
         return badge;
     }
 
-    function buildTextContent(text) {
-        var div = el('div', 'wv-card-body');
-        div.textContent = text;
-        return div;
-    }
-
-    function buildHtmlContent(html) {
-        var div = el('div', 'wv-card-body');
-        div.innerHTML = html;
-        return div;
-    }
-
     // ===================== RUBRIC SLIDE-OVER =====================
 
+    /**
+     * Build the rubric "Show" trigger card placed in the sidebar.
+     *
+     * @return {HTMLElement} Card element.
+     */
     function buildRubricTrigger() {
         var card = el('div', 'wv-card wv-rubric-trigger');
         var header = el('div', 'wv-collapsible-header');
@@ -338,6 +359,9 @@ define([], function() {
         return card;
     }
 
+    /**
+     * Build the rubric slide-over panel (backdrop + side panel) and append to body.
+     */
     function buildRubricPanel() {
         // Backdrop.
         var backdrop = el('div', 'wv-rubric-backdrop');
@@ -371,6 +395,9 @@ define([], function() {
         document.body.appendChild(panel);
     }
 
+    /**
+     * Close the rubric slide-over panel and its backdrop.
+     */
     function closeRubricPanel() {
         var panel = document.getElementById('wv-rubric-panel');
         var backdrop = document.getElementById('wv-rubric-backdrop');
@@ -384,6 +411,12 @@ define([], function() {
 
     // ===================== ASSIGNMENT DECLARATION =====================
 
+    /**
+     * Build the submission-statement declaration UI: a compact sidebar card
+     * (checked state) plus a modal overlay (unchecked state). Persistence is
+     * via localStorage so the modal stops re-prompting after the student
+     * agrees once on this device.
+     */
     function installDeclarationField() {
         var checkbox = document.getElementById('id_submissionstatement');
         var sidebarBody = document.querySelector('.wv-sidebar-body');
@@ -460,10 +493,25 @@ define([], function() {
 
         var storageKey = 'local_writerview_agreed_' + config.cmid + '_' + config.userId;
 
+        /**
+         * Read the persisted "agreed" flag from localStorage.
+         *
+         * @return {boolean} True if the student has previously agreed on this device.
+         */
         function readAgreed() {
-            try { return localStorage.getItem(storageKey) === '1'; } catch (e) { return false; }
+            try {
+                return localStorage.getItem(storageKey) === '1';
+            } catch (e) {
+                return false;
+            }
         }
 
+        /**
+         * Persist (or clear) the "agreed" flag. Silently ignores localStorage failures
+         * (private browsing, quota exceeded, etc.).
+         *
+         * @param {boolean} v True to mark agreed, false to clear.
+         */
         function writeAgreed(v) {
             try {
                 if (v) {
@@ -471,21 +519,33 @@ define([], function() {
                 } else {
                     localStorage.removeItem(storageKey);
                 }
-            } catch (e) { /* private browsing or quota — non-fatal */ }
+            } catch (e) {
+                // Private browsing or quota exceeded — non-fatal.
+            }
         }
 
+        /**
+         * Show the declaration modal and lock background interaction via body class.
+         */
         function openModal() {
             modal.classList.add('open');
             backdrop.classList.add('open');
             document.body.classList.add('wv-decl-modal-open');
         }
 
+        /**
+         * Hide the declaration modal and unlock background interaction.
+         */
         function closeModal() {
             modal.classList.remove('open');
             backdrop.classList.remove('open');
             document.body.classList.remove('wv-decl-modal-open');
         }
 
+        /**
+         * Drive UI from the current checkbox state: checked closes the modal and
+         * marks agreed; unchecked clears the flag and reopens the modal.
+         */
         function reflectState() {
             if (checkbox.checked) {
                 card.classList.add('wv-decl-checked');
@@ -560,8 +620,12 @@ define([], function() {
 
     // ===================== DUE DATE TIMER =====================
 
+    /**
+     * Start a 1-second interval that updates the due-date timer text and adds
+     * the overdue class once the deadline has passed.
+     */
     function startDueDateTimer() {
-        dueDateInterval = setInterval(function() {
+        setInterval(function() {
             var display = document.getElementById('writerview-timer');
             if (display) {
                 display.textContent = formatTimeRemaining(config.dueDate);
@@ -573,6 +637,13 @@ define([], function() {
         }, 1000);
     }
 
+    /**
+     * Format seconds remaining to a deadline as a compact human string
+     * (e.g. "1d 4h 30m"). Returns the localized "overdue" string when negative.
+     *
+     * @param {number} dueTimestamp Unix timestamp of the deadline.
+     * @return {string} Formatted countdown.
+     */
     function formatTimeRemaining(dueTimestamp) {
         var now = Math.floor(Date.now() / 1000);
         var diff = dueTimestamp - now;
@@ -597,6 +668,12 @@ define([], function() {
 
     // ===================== UTILITIES =====================
 
+    /**
+     * Map a submission-status code to its localized label.
+     *
+     * @param {string} status mod_assign status code (new/draft/submitted/reopened).
+     * @return {string} Localized status label, or the raw code if unknown.
+     */
     function formatStatus(status) {
         var statusMap = {
             'new': config.strings.statusnew,
@@ -607,6 +684,13 @@ define([], function() {
         return statusMap[status] || status;
     }
 
+    /**
+     * Create an element with an optional class name.
+     *
+     * @param {string} tag HTML tag name.
+     * @param {string} [className] Optional class name.
+     * @return {HTMLElement} The created element.
+     */
     function el(tag, className) {
         var node = document.createElement(tag);
         if (className) {
@@ -615,18 +699,10 @@ define([], function() {
         return node;
     }
 
-    function chevronLeft() {
-        return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-            '<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708' +
-            'l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>';
-    }
-
-    function chevronRight() {
-        return '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">' +
-            '<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1' +
-            '-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>';
-    }
-
+    /**
+     * Hide Moodle-rendered description and due-date blocks above the editor,
+     * since the sidebar shows the same information.
+     */
     function hideOriginalDescription() {
         ['.activity-description', '#intro'].forEach(function(sel) {
             var node = document.querySelector(sel);
@@ -656,7 +732,14 @@ define([], function() {
 
     // ===================== WORD COUNT =====================
 
+    /**
+     * Start the word-count poll/observer. Updates the sidebar's word-count
+     * display every 2 seconds and on every editor input event.
+     */
     function startWordCount() {
+        /**
+         * Read the editor body's text and update the sidebar word-count display.
+         */
         function updateCount() {
             var iframe = document.querySelector('.tox-tinymce iframe');
             if (!iframe || !iframe.contentDocument) {
@@ -675,10 +758,16 @@ define([], function() {
         }
 
         updateCount();
-        wordCountInterval = setInterval(updateCount, 2000);
+        setInterval(updateCount, 2000);
         tryAttachEditorListener(updateCount);
     }
 
+    /**
+     * Best-effort attach an input listener to the TinyMCE iframe body so word
+     * counts update immediately on keystroke. No-op if the iframe isn't ready.
+     *
+     * @param {Function} updateFn Callback to invoke on input.
+     */
     function tryAttachEditorListener(updateFn) {
         var iframe = document.querySelector('.tox-tinymce iframe');
         if (!iframe || !iframe.contentDocument || !iframe.contentDocument.body) {
@@ -687,6 +776,12 @@ define([], function() {
         iframe.contentDocument.body.addEventListener('input', updateFn);
     }
 
+    /**
+     * Count whitespace-separated words in a string.
+     *
+     * @param {string} text Source text.
+     * @return {number} Word count (0 for empty/whitespace-only input).
+     */
     function countWords(text) {
         var trimmed = text.trim();
         if (trimmed.length === 0) {

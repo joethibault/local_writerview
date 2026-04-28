@@ -36,7 +36,6 @@ use core_privacy\tests\provider_testcase;
  * @covers     \local_writerview\privacy\provider
  */
 final class privacy_provider_test extends provider_testcase {
-
     /**
      * The provider implements the null_provider interface.
      */

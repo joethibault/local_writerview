@@ -32,7 +32,6 @@ namespace local_writerview;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
-
     /**
      * Conditionally inject Writer View JS and configuration.
      *

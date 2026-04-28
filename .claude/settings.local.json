@@ -12,7 +12,9 @@
       "Bash(GPL/ --output \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/build/writerview.min.js\")",
       "Bash(npx --yes --quiet terser \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/src/writerview.js\" --compress --mangle --output \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/amd/build/writerview.min.js\")",
       "Bash(cp \"C:/Users/josep/Downloads/Untitled presentation \\(3\\).svg\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/pix/icon.svg\")",
-      "Bash(cp \"C:/Users/josep/Downloads/Untitled presentation \\(3\\).png\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/pix/icon.png\")"
+      "Bash(cp \"C:/Users/josep/Downloads/Untitled presentation \\(3\\).png\" \"C:/Users/josep/OneDrive/Desktop/Code/local_writerview/pix/icon.png\")",
+      "Bash(git checkout *)",
+      "Bash(git branch *)"
     ]
   }
 }
